@@ -21,7 +21,7 @@ const generateMail = (to, token = "",teamName = "", contact = 0, teamPlayers = [
         `
         <div>Thank you for registering for the event hosted by Clutch! We're thrilled to have you join us for an epic gaming experience.</div>
         <div>To complete your registration, please verify your email by clicking the link below:</div>
-         <p> <a href="/api/player/${token}">Verification Link</a></p>
+         <p> <a href="https://clutchiiitk.vercel.app/api/player/${token}">Verification Link</a></p>
          <p>${teamName}</p>
          <p>${contact}</p>
          <p>${playerDetails}</p>
