@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Title Styling */
+h1 {
+    text-align: center;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+/* Container Styling */
+.container {
+    display: grid;
+    grid-template-columns: 1fr; /* Single column by default */
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+    list-style-type: none;
+}
+
+/* Team Card */
+.team-card {
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border-left: 5px solid #007bff;
+    transition: transform 0.3s ease;
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+}
+
+.team-card h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+/* Player List */
+.players-list {
+    list-style: none;
+    padding: 0;
+}
+
+/* Player Card */
+.player-card {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: transform 0.3s ease;
+}
+
+/* Hover effect */
+.player-card:hover {
+    transform: scale(1.02);
+}
+
+/* Verified & Unverified Player Styling */
+.verified {
+    background-color: #e8f5e9; /* Light green */
+    border-left: 5px solid #28a745;
+}
+
+.unverified {
+    background-color: #fbe9e7; /* Light red */
+    border-left: 5px solid #dc3545;
+}
+
+/* Player Details */
+.player-card li {
+    list-style: none;
+    padding: 5px 0;
+}
+
+/* 📌 Responsive Design */
+@media (min-width: 768px) {
+    .container {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns on tablets */
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        grid-template-columns: repeat(3, 1fr); /* 3 columns on desktops */
+    }
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+
+    .team-card {
+        padding: 15px;
+    }
+}
+
+    </style>
+    <title>Teams and Players for <%= gameName %></title>
+</head>
+<body>
+    <h1>Teams for <%= gameName %></h1>
+
+    <ul class="container">
+        <% if (teamList.length > 0) { %>
+            <% teamList.forEach(team => { %>
+                <li class="team-card">
+                    <h2><%= team.teamName %></h2>
+                    <p>Contact: <%= team.contact %></p>
+
+                    <ul class="players-list">
+                        <% team.players.forEach(player => { %>
+                            <% if (player.playerVerify) { %>
+                                <div class="player-card verified">
+                            <% } else { %>
+                                <div class="player-card unverified">
+                            <% } %>
+                                    <li><strong>Name:</strong> <%= player.playerName %></li>
+                                    <li><strong>UID/RIOT ID:</strong> <%= player.playerUID %></li>
+                                    <li><strong>IGN:</strong> <%= player.playerIGN %></li>
+                                    <li><strong>Email:</strong> <%= player.playerEmail %></li>
+                                </div>
+                        <% }) %>
+                    </ul>
+                </li>
+            <% }) %>
+        <% } else { %>
+            <li>No teams found for this game.</li>
+        <% } %>
+    </ul>
+</body>
+</html>
