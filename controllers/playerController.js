@@ -17,6 +17,7 @@ const verifyPlayer = async(req,res)=>{
         res.redirect('/');
     } catch( err ) {
         res.status(500).send('yatrigan kripya dhyan, server busy hai to thoda jal grahan kare');
+        console.log(err);
     }
 };
 

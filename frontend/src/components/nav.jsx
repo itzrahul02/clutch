@@ -62,26 +62,28 @@ function Nav() {
         {menuOpen && (
           <div className="md:hidden absolute top-full left-0 w-full bg-black bg-opacity-90 p-5 flex flex-col items-center gap-4">
             <a href="#" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Home</a>
-            <a href="#" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Contact</a>
-            <a href="#games" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Games</a>
-            <a href="#" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Events</a>
+            <a href="#games" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Register</a>
           </div>
         )}
       </nav>
 
       {/* Social Icons (Fixed to Bottom) */}
-      <div className="fixed z-50 bottom-6 left-4 flex flex-col gap-3">
-        <div className="p-3 border bg-red-600 rounded-full shadow-lg">
-          <a href="https://www.youtube.com/@Clutch-iiitk" target="_blank">
-            <FontAwesomeIcon icon={faYoutube} className="size-7 text-white" />
-          </a>
-        </div>
-        <div className="p-3 border rounded-full bg-gradient-to-r from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] shadow-lg">
-          <a href="https://www.instagram.com/clutch_iiitkota/" target="_blank">
-            <FontAwesomeIcon icon={faInstagram} className="size-7 text-white" />
-          </a>
-        </div>
-      </div>
+      <div className="fixed bottom-6 left-4 z-50 flex flex-col gap-3">
+  {/* YouTube Button */}
+  <div className="flex h-14 w-14 items-center justify-center rounded-full border bg-red-600 p-3 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg">
+    <a href="https://www.youtube.com/@Clutch-iiitk" target="_blank" rel="noopener noreferrer">
+      <FontAwesomeIcon icon={faYoutube} className="h-7 w-7 text-white" />
+    </a>
+  </div>
+
+  {/* Instagram Button */}
+  <div className="flex h-14 w-14 items-center justify-center rounded-full border bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 p-3 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg">
+    <a href="https://www.instagram.com/clutch_iiitkota/" target="_blank" rel="noopener noreferrer">
+      <FontAwesomeIcon icon={faInstagram} className="h-7 w-7 text-white" />
+    </a>
+  </div>
+</div>
+
     </div>
   );
 }

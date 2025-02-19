@@ -29,6 +29,8 @@ const generateMail = (to, token = "",teamName = "", contact = 0, teamPlayers = [
 If you did not register for this event, please ignore this email. For any queries, feel free to reach out to us. </div>
         <div>Get ready for the competition—see you soon!</div>
         <div>Best regards,</div>
+        <div>Asmit Verma</div>
+        <div>Coordinator</div>
         <div>Team Clutch</div>        
         `
 
