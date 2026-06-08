@@ -44,7 +44,7 @@ export function Register() {
  
       <div id="games" className="flex gap-3 flex-wrap md:gap-[5rem] mx-auto md:w-[60%] justify-center md:justify-between items-center mt-[4rem]">
       {games.map((game,index)=>(
-        
+         
         <Link to={`/form?game=${game.url}`} key={index} >
         <div className="border md:w-[15rem] mx-auto w-[9rem] bg-[#212121] hover:scale-110 hover:bg-red-600/90 transition-transform duration-700 ease-in-out border-white overflow-hidden rounded-lg shadow-lg">
           <div className="text-white">

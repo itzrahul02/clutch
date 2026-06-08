@@ -31,6 +31,6 @@ playerSchema.pre('save', function(next) {
         this.token = crypto.randomBytes(32).toString('hex');
     }
     next();
-});
+}); 
 
 module.exports = mongoose.model('players',playerSchema)

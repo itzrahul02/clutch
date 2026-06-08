@@ -1,4 +1,3 @@
-
 const generateMail = (to, token = "",teamName = "", contact = 0, teamPlayers = []) => {
     
     const playerDetails = teamPlayers.map(team=>
@@ -16,8 +15,7 @@ const generateMail = (to, token = "",teamName = "", contact = 0, teamPlayers = [
         subject: "Clutch event registration confirmation",
         text: token,
 
-        html: 
-        
+        html:         
         `
         <div>Thank you for registering for the event hosted by Clutch! We're thrilled to have you join us for an epic gaming experience.</div>
         <div>To complete your registration, please verify your email by clicking the link below:</div>
@@ -29,7 +27,7 @@ const generateMail = (to, token = "",teamName = "", contact = 0, teamPlayers = [
 If you did not register for this event, please ignore this email. For any queries, feel free to reach out to us. </div>
         <div>Get ready for the competition—see you soon!</div>
         <div>Best regards,</div>
-        <div>Asmit Verma</div>
+        <div>Rahul Sharma</div>
         <div>Coordinator</div>
         <div>Team Clutch</div>        
         `

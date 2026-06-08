@@ -6,7 +6,7 @@ import App from './App';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>  {/* Wrap your App component with BrowserRouter */}
+    <BrowserRouter>  
       <App />
     </BrowserRouter>
   </StrictMode>,

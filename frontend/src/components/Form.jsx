@@ -41,7 +41,6 @@ function Form() {
         "Kyu add kar raha hai?"
       )
     }
-    
   };
 
   const correctDetails = () =>{

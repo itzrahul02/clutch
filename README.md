@@ -5,7 +5,7 @@ Comprehensive repository for the Clutch event platform. This project provides a 
 ## Table of contents
 - [Project Overview](#project-overview)
 - [Features](#features)
-- [Tech Stack](#tech-stack)
+- [Tech Stack](#tech-stack)I
 - [Repository Structure](#repository-structure)
 - [Prerequisites](#prerequisites)
 - [Environment Variables](#environment-variables)

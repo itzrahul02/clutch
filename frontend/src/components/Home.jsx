@@ -70,6 +70,7 @@ function Home() {
                 transform: `translateX(-${move * 100}%)`,
               }}
             >
+
               {images.map((src, index) => (
                 <img
                   key={index}

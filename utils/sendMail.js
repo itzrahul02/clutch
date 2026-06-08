@@ -13,7 +13,6 @@ const transporter = nodemailer.createTransport({
   maxMessages: 10,
 });
 
-
 const sendMail = async (mail) => {
   console.log("Sending mail:", mail);
   try {
@@ -23,7 +22,5 @@ const sendMail = async (mail) => {
     console.error("Error sending email:", error);
   }
 };
-
-
 
 module.exports = sendMail;

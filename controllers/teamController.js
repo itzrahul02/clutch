@@ -24,7 +24,7 @@ const registerTeam = async(req, res) => {
         }
         
         let playerIds = [];
-        let mailPool = [];
+        let mailPool = []; 
         for( const player of teamPlayers ) {
             const newPlayer = new playerModel(player);
             await newPlayer.save();
@@ -42,7 +42,7 @@ const registerTeam = async(req, res) => {
         
         await newTeam.save();
         await Promise.all(mailPool);
-        res.send(newTeam);
+        res.send(newTeam); 
     } catch(err) {
         console.log(err);
         res.send('teamControllers');
@@ -57,6 +57,7 @@ const getTeams= async(req,res)=>{
          if (!game){
             res.status(404).send("Game not found");
          }
+         
          console.log(game._id);
          const teams = await teamModel.find({game: game._id})
          .populate('players')
