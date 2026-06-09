@@ -6,9 +6,17 @@ import background from "../assets/background4.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { faInstagram, faYoutube } from "@fortawesome/free-brands-svg-icons";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <div>
@@ -40,6 +48,14 @@ function Nav() {
             <a href="#" className="hover:text-red-600">Home</a>
  
             <a href="#games" className="hover:text-red-600">Register</a>
+            {isAuthenticated && (user?.role === 'admin' || user?.role === 'coordinator') ? (
+              <Link to="/admin/games" className="hover:text-red-600">Admin</Link>
+            ) : null}
+            {!isAuthenticated ? (
+              <Link to="/login" className="hover:text-red-600">Login</Link>
+            ) : (
+              <button type="button" className="hover:text-red-600" onClick={handleLogout}>Logout</button>
+            )}
 
           </div>
 
@@ -63,6 +79,14 @@ function Nav() {
           <div className="md:hidden absolute top-full left-0 w-full bg-black bg-opacity-90 p-5 flex flex-col items-center gap-4">
             <a href="#" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Home</a>
             <a href="#games" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Register</a>
+            {isAuthenticated && (user?.role === 'admin' || user?.role === 'coordinator') ? (
+              <Link to="/admin/games" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Admin</Link>
+            ) : null}
+            {!isAuthenticated ? (
+              <Link to="/login" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Login</Link>
+            ) : (
+              <button type="button" className="hover:text-red-600" onClick={() => { setMenuOpen(false); handleLogout(); }}>Logout</button>
+            )}
           </div>
         )}
       </nav>

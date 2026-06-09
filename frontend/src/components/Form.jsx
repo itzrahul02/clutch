@@ -7,8 +7,7 @@ function Form() {
   const[gameOptions, setGamesOptions] = useState([]);
   useEffect(() => {
     axios.get('/api/games').then(res => {
-      console.log(res.data)
-      setGamesOptions(res.data)
+      setGamesOptions(res.data?.data || [])
       })
       .catch((error)=>{console.log("Error in getting games:",error);})
 },[]);
@@ -17,7 +16,7 @@ function Form() {
   const [searchParams] = useSearchParams();
   const [details, setDetails] = useState([]);
   const game = searchParams.get("game");
-  const [contactData,setContactData] = useState(0)
+  const [contactData,setContactData] = useState("")
 
   // Function to update details
   const handleInputChange = (index, field, value) => {
@@ -33,7 +32,7 @@ function Form() {
 
   // Function to add a new member
   const addMember = () => {
-    if (details.length<selectGame.maxPlayers){
+    if (details.length < (selectGame?.maxPlayers || 1)){
       setDetails([...details, { name: "",UID: "", IGN:"",email: "", }]);
     }
     else{
@@ -153,7 +152,7 @@ function Form() {
                 placeholder="Enter your Contact"
                 className="p-2 bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                 required
-                onChange={(e)=>setContactData(parseInt(e.target.value))}
+                onChange={(e)=>setContactData(e.target.value)}
               />
 
               <label htmlFor="games">Select a Game</label>
@@ -169,7 +168,7 @@ function Form() {
                 {gameOptions.map((g, index) => (
                   <option
                     key={index}
-                    value={g.url}
+                    value={g.name}
                     className="bg-black text-white"
                   >
                     {g.name}

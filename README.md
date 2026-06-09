@@ -1,178 +1,256 @@
-# Clutch — IIIT Kota Gaming Event Portal
+# Clutch - Scaled Event Platform (Backend + Frontend)
 
-Comprehensive repository for the Clutch event platform. This project provides a Node.js + Express backend with a React + Vite frontend to register teams, manage players, and send verification emails.
+Clutch is now implemented as a production-style tournament registration platform with authentication, role-based access, validation, background job processing, API docs, and containerized local deployment.
 
-## Table of contents
-- [Project Overview](#project-overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Repository Structure](#repository-structure)
-- [Prerequisites](#prerequisites)
-- [Environment Variables](#environment-variables)
-- [Local Setup](#local-setup)
-- [Backend API](#backend-api)
-- [Frontend](#frontend)
-- [Building & Deployment](#building--deployment)
-- [Contributing](#contributing)
-- [License & Contact](#license--contact)
+This README explains what each major addition does and why it exists from an industry point of view.
 
-## Project Overview
+## What Is Implemented
 
-Clutch is a small event registration platform for gaming tournaments. The backend stores games, teams and players in MongoDB, issues verification tokens to players, and sends verification emails. The frontend (React + Vite) consumes the backend API and provides user-facing registration flows.
+### 1) Authentication and Authorization
+- JWT-based auth is implemented for protected APIs.
+- Roles are implemented: `admin`, `coordinator`, `player`.
+- Protected backend routes verify token and role before allowing access.
+- Frontend now has login/register flows and protected UI routes.
 
-## Features
-- Create and list games
-- Team registration (multiple players per team)
-- Email verification for players
-- Simple server-side rendered team list view
-- Static frontend build served from `frontend/dist`
+Why this matters:
+- This separates public and privileged actions, which is expected in real-world systems.
+
+### 2) Request Validation with Zod
+- Request payloads and params are validated using Zod schemas.
+- Validation runs before controller logic.
+- Invalid input returns clear 4xx-style errors.
+
+Why this matters:
+- Prevents bad data from entering core business logic.
+- Keeps controller code cleaner and predictable.
+
+### 3) Centralized Error Handling
+- Async handlers route errors to one error middleware.
+- Operational errors and validation issues are normalized.
+
+Why this matters:
+- Consistent API error shape helps frontend and observability.
+
+### 4) Security and Hardening Middleware
+- `helmet` for security headers.
+- `express-rate-limit` for request throttling.
+- `compression` for response optimization.
+- CORS is environment-driven.
+
+Why this matters:
+- Baseline protection and performance for internet-facing services.
+
+### 5) Logging and Observability Basics
+- Structured logging is enabled through `pino` and `pino-http`.
+- Request-level logs include response status and latency context.
+
+Why this matters:
+- Better debugging, monitoring, and incident triage in production.
+
+### 6) Redis + BullMQ Background Jobs
+- Team registration enqueues email verification jobs.
+- A dedicated worker consumes jobs and sends emails.
+- Retry/backoff policies are configured on queue jobs.
+- If queue is unavailable, fallback delivery logic is used.
+
+Why this matters:
+- API response is decoupled from email network latency.
+- Improves reliability and throughput under load.
+
+### 7) Docker and Docker Compose Stack
+- Full local stack is containerized: frontend, backend, worker, MongoDB, Redis.
+- One command can bring up all services.
+
+Why this matters:
+- Reproducible setup across machines.
+- Faster onboarding and less environment drift.
+
+### 8) OpenAPI/Swagger Documentation
+- Swagger UI is exposed at:
+  - `/api/docs`
+  - `/api/v1/docs`
+
+Why this matters:
+- Enables clear API discoverability for frontend/dev/test teams.
+
+### 9) Pagination and Query Controls
+- Games listing supports `page`, `limit`, `search`, `sortBy`, `sortOrder`.
+- API response includes pagination metadata.
+
+Why this matters:
+- Scale-ready list APIs avoid large payloads and improve UX.
+
+### 10) Frontend Integration with Backend Auth
+- Frontend now stores and sends JWT via API client interceptor.
+- Auth context manages session and user info.
+- Protected frontend route guards admin/coordinator pages.
+- Navbar reflects login state and supports logout.
+
+Why this matters:
+- Backend security model is reflected in actual user flows.
+
+## Architecture Flow
+
+```mermaid
+flowchart LR
+  U[User Browser] --> F[Frontend Vite App]
+  F -->|/api requests| B[Express Backend]
+  B --> M[(MongoDB)]
+  B -->|enqueue mail job| R[(Redis)]
+  W[Worker Process] -->|consume jobs| R
+  W --> S[SMTP Provider]
+```
 
 ## Tech Stack
-- Backend: Node.js, Express, Mongoose
-- Frontend: React, Vite, Tailwind CSS
-- Email: Nodemailer (Gmail SMTP)
-- Deployment target: Vercel (see `vercel.json`)
 
-## Repository Structure
-- `index.js` — server entry
-- `config/dbConnect.js` — MongoDB connection
-- `routes/` — Express route definitions (`gamesRouter.js`, `teamRouter.js`, `playersRouter.js`)
-- `controllers/` — route handlers
-- `models/` — Mongoose schemas (`gamesModel.js`, `teamModel.js`, `playerModel.js`)
-- `utils/` — `generateMail.js`, `sendMail.js`
-- `frontend/` — React app (Vite)
-- `vercel.json` — Vercel build & route configuration
+### Backend
+- Node.js + Express
+- Mongoose (MongoDB)
+- Zod validation
+- JWT (`jsonwebtoken`)
+- Security middleware (`helmet`, `express-rate-limit`, `compression`)
+- Logging (`pino`, `pino-http`)
+- Queue (`bullmq`, `ioredis`)
+- API docs (`swagger-jsdoc`, `swagger-ui-express`)
 
-See the source files for details.
+### Frontend
+- React + Vite
+- React Router
+- Axios API client with auth header interceptor
 
-## Prerequisites
-- Node.js (>=16 recommended)
-- npm or yarn
-- MongoDB connection (Atlas or self-hosted)
-- Gmail account (for sending email) or another SMTP provider
+### Infra
+- Docker
+- Docker Compose
+- MongoDB
+- Redis
 
 ## Environment Variables
-Create a `.env` file in the repository root with the following keys:
 
+Copy `.env.example` to `.env` and fill values.
+
+```env
+NODE_ENV=development
+PORT=1234
+MONGO_URI=
+REDIS_URL=redis://localhost:6379
+CLIENT_ORIGIN=http://localhost:5173
+APP_BASE_URL=http://localhost:1234
+JWT_SECRET=replace-with-strong-secret
+JWT_EXPIRES_IN=1d
+EMAIL=
+PASS=
+VITE_API_PROXY_TARGET=http://localhost:1234
 ```
-MONGO_URI=your_mongodb_connection_string
-EMAIL=your_smtp_email@example.com
-PASS=your_smtp_password_or_app_password
-ENV=dev
-```
 
-- `MONGO_URI`: connection string for MongoDB
-- `EMAIL` / `PASS`: SMTP credentials used by `utils/sendMail.js` (currently configured for Gmail)
-- `ENV`: when set to `dev` the server listens on the configured `PORT` (see `index.js`)
+Variable notes:
+- `MONGO_URI`: MongoDB connection string for app data.
+- `REDIS_URL`: Redis used by BullMQ queue + worker.
+- `JWT_SECRET`: key used to sign and verify access tokens.
+- `CLIENT_ORIGIN`: allowed browser origin for CORS.
+- `APP_BASE_URL`: backend base URL used in verification links.
+- `EMAIL` / `PASS`: SMTP credentials for outgoing mail.
 
-Important: For Gmail, you may need to use an App Password and enable the appropriate account settings.
+## How to Run
 
-## Local Setup
+### Option A: Local (without Docker)
 
-1. Clone the repo and install dependencies (shortcut):
+1. Install dependencies:
 
 ```bash
 npm install
 npm run insta
 ```
 
-`npm run insta` will run `npm install` at root and then `cd frontend && npm install`.
-
-2. Dev run (concurrently start backend and frontend):
+2. Run backend + frontend:
 
 ```bash
 npm run dev
 ```
 
-3. If you prefer to run backend and frontend separately:
-
-Backend only:
+3. Run backend + worker + frontend:
 
 ```bash
-node index.js
+npm run dev:full
 ```
 
-Frontend only (in `frontend/`):
+4. Run services separately if needed:
 
 ```bash
-cd frontend
-npm run dev
+npm start
+npm run start:worker
+cd frontend && npm run dev
 ```
 
-Note: The backend currently sets CORS origin to `http://localhost:5173` and listens on port `1234` (see `index.js`).
-
-## Backend API
-
-Base URL: `/api`
-
-Endpoints:
-
-- `GET /api/games` — list all games (uses `routes/gamesRouter.js` → `getAllGames`)
-- `POST /api/games/add` — add a new game. Body example:
-
-```json
-{
-  "name": "Game Name",
-  "minPlayers": 1,
-  "maxPlayers": 4,
-  "rules": ["rule 1", "rule 2"],
-  "img": "url_or_path"
-}
-```
-
-- `POST /api/team` — register a team (uses `controllers/teamController.js`). Body example:
-
-```json
-{
-  "gameName": "Game Name",
-  "teamName": "Team Alpha",
-  "contact": "9999999999",
-  "teamPlayers": [
-    { "name": "Player 1", "UID": "UID1", "IGN": "IGN1", "email": "p1@example.com" },
-    { "name": "Player 2", "UID": "UID2", "IGN": "IGN2", "email": "p2@example.com" }
-  ]
-}
-```
-
-This endpoint will create player documents, create a team document linking the players, and send verification emails to each player.
-
-- `GET /api/player/:token` — verify a player's email by token (handled by `controllers/playerController.js`). Visiting the token URL will mark the player as verified and redirect to `/`.
-
-- `GET /api/team/:gameName` — server-rendered view (EJS) of teams registered for `gameName` (returns HTML rendered from `views/teams.ejs`).
-
-## Frontend
-
-The frontend is located in `frontend/` and uses Vite + React.
-
-Useful commands (in `frontend/`):
-
-- `npm run dev` — start dev server
-- `npm run build` — build production assets to `frontend/dist`
-- `npm run preview` — preview built assets
-
-The frontend consumes the backend API under `/api/*` (see `src/components` for usage).
-
-## Building & Deployment
-
-1. Build the frontend:
+### Option B: Docker Compose (recommended)
 
 ```bash
-npm run build
+docker compose up --build
 ```
 
-2. The root `vercel.json` is configured to deploy `index.js` as a Node server and `frontend/dist` as static assets. When deploying to Vercel, the server entry (`index.js`) handles API routes and serves the static frontend.
+Services after startup:
+- Frontend: http://localhost:5173
+- Backend: http://localhost:1234
+- Swagger: http://localhost:1234/api/docs
+- MongoDB: localhost:27017
+- Redis: localhost:6379
 
-## Contributing
+## API Summary
 
-- Open an issue to discuss major changes.
-- Create a branch per feature and open a pull request.
-- Follow the existing code style.
+Base path: `/api` (also mirrored at `/api/v1`)
 
-## Notes & Gotchas
-- `index.js` currently only starts the server when `ENV` equals `dev`. In other environments the app is exported (helpful for serverless or test setups).
-- The `dev` script in root `package.json` references `concurrently` and `nodemon`. If you run `npm run dev` and encounter "command not found" errors, install those packages globally or add them to `devDependencies`.
+### Auth
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
 
-## License & Contact
-This project does not include a license file. Add a `LICENSE` if you want to open-source the code.
+### Games
+- `GET /api/games`
+  - query: `page`, `limit`, `search`, `sortBy`, `sortOrder`
+- `POST /api/games/add` (protected: admin/coordinator)
 
-Contact: Rahul Sharma (project owner)
+### Team Registration
+- `POST /api/team`
+  - creates players and team
+  - enqueues verification emails via Redis queue
+
+### Player Verification
+- `GET /api/player/:token`
+
+### Team View
+- `GET /api/team/:gameName` (protected in current RBAC setup)
+
+## Testing
+
+Run tests:
+
+```bash
+npm test
+```
+
+Current suite includes health endpoint coverage and can be expanded to integration tests for auth, games, and team flows.
+
+## Frontend Notes
+
+- Frontend routes now include auth pages and a protected admin page.
+- Admin game creation calls protected backend endpoint with JWT.
+- Existing registration form was updated to match paginated games API response shape.
+
+## Important Operational Notes
+
+- Backend startup requires a valid `MONGO_URI`.
+- Worker startup requires a valid `REDIS_URL`.
+- If Redis is unavailable, email dispatch falls back to direct send in registration flow.
+- Swagger docs are served by backend and do not require frontend.
+
+## Repository Highlights
+
+- Backend app entry: `index.js`
+- Queue worker entry: `worker.js`
+- Compose stack: `docker-compose.yml`
+- Backend Dockerfile: `Dockerfile`
+- Frontend Dockerfile: `frontend/Dockerfile`
+- Environment template: `.env.example`
+
+## License
+
+No license file is currently included. Add a `LICENSE` file if this repository will be distributed publicly.

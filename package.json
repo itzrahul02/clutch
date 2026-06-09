@@ -4,24 +4,45 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "start:worker": "node worker.js",
     "insta": "npm install && cd frontend && npm install",
-    "dev": "concurrently \"nodemon index.js\" \"cd frontend && npm run dev\"",
+    "dev": "node ./node_modules/concurrently/dist/bin/concurrently.js \"node ./node_modules/nodemon/bin/nodemon.js index.js\" \"cd frontend && npm run dev\"",
+    "dev:full": "node ./node_modules/concurrently/dist/bin/concurrently.js \"node ./node_modules/nodemon/bin/nodemon.js index.js\" \"node worker.js\" \"cd frontend && npm run dev\"",
     "build": "cd frontend && npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node ./node_modules/jest/bin/jest.js --runInBand",
+    "test:watch": "node ./node_modules/jest/bin/jest.js --watch"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "bullmq": "^5.78.0",
+    "compression": "^1.8.1",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
+    "ioredis": "^5.11.1",
+    "jsonwebtoken": "^9.0.3",
     "mongodb": "^6.13.0",
     "mongoose": "^8.10.0",
     "morgan": "^1.10.0",
     "nodemailer": "^6.10.0",
-    "yarn": "^1.22.22"
+    "nodemon": "^3.1.14",
+    "pino": "^10.3.1",
+    "pino-http": "^11.0.0",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1",
+    "yarn": "^1.22.22",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3",
+    "jest": "^30.4.2",
+    "supertest": "^7.2.2"
   }
 }

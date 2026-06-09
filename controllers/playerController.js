@@ -1,24 +1,19 @@
 const playerModel = require('../models/playerModel')
+const AppError = require('../utils/appError');
 
 const verifyPlayer = async(req,res)=>{
     const { token } = req.params;
-    try {
-        const player = await playerModel.findOne({ token });
-        if( !player ) {
-            res.status(403).send('Player not found');
-            return
-        }
-        if( player.verified ) {
-            res.redirect('/')
-            return
-        }
+    const player = await playerModel.findOne({ token });
+    if( !player ) {
+        throw new AppError('Player not found', 404);
+    }
+
+    if (!player.verified) {
         player.verified = true;
         await player.save();
-        res.redirect('/');
-    } catch( err ) {
-        res.status(500).send('yatrigan kripya dhyan, server busy hai to thoda jal grahan kare');
-        console.log(err);
     }
+
+    res.redirect('/');
 };
 
 module.exports = {

@@ -1,0 +1,73 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: clutch-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    container_name: clutch-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: clutch-backend
+    restart: unless-stopped
+    environment:
+      PORT: 1234
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/clutch}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost:5173}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:1234}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+      EMAIL: ${EMAIL:-}
+      PASS: ${PASS:-}
+    depends_on:
+      - mongo
+      - redis
+    ports:
+      - "1234:1234"
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: clutch-worker
+    restart: unless-stopped
+    command: ["node", "worker.js"]
+    environment:
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/clutch}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost:5173}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:1234}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+      EMAIL: ${EMAIL:-}
+      PASS: ${PASS:-}
+    depends_on:
+      - redis
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: clutch-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_PROXY_TARGET: ${VITE_API_PROXY_TARGET:-http://backend:1234}
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+
+volumes:
+  mongo_data:
