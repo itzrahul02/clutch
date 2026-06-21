@@ -1,23 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import registration from "../assets/registration.png";
 import background1 from "../assets/Clutch_logo.png";
 import { Link } from "react-router-dom";
 import backgroundReg from "../assets/tp3.jpg"
-import valorant from "../assets/vloo.png"
-import bgmi from "../assets/bgmi2.jpg"
-import freef from "../assets/Kellyy.jpg"
-import callof from "../assets/cod2.jpg"
-import fiifaa from "../assets/fifa1.jpg"
-import mortal from "../assets/mc1.jpg"
+import axios from "axios";
+
 export function Register() {
-  const games = [
-    { name: "Valorant", url: "valorant", image:valorant },
-    { name: "BGMI", url: "bgmi", image:bgmi  },
-    { name: "Freefire", url: "freefire", image:freef },
-    { name: "Call of Duty", url: "call-of-duty", image:callof  },
-    { name: "FIFA", url: "fifa", image:fiifaa},
-    { name: "Mortal Combat", url: "mortal-combat", image:mortal },
-  ];
+  const [games, setGames] = useState([]);
+
+  useEffect(() => {
+    axios.get("/api/games")
+      .then((res) => {
+        setGames(res.data?.data || []);
+      })
+      .catch((error) => {
+        console.log("Error fetching games:", error);
+      });
+  }, []);
   
   return (
     <div className="bg-black py-16" 
@@ -45,10 +44,10 @@ export function Register() {
       <div id="games" className="flex gap-3 flex-wrap md:gap-[5rem] mx-auto md:w-[60%] justify-center md:justify-between items-center mt-[4rem]">
       {games.map((game,index)=>(
         
-        <Link to={`/form?game=${game.url}`} key={index} >
+        <Link to={`/form?game=${game.name}`} key={game._id || index} >
         <div className="border md:w-[15rem] mx-auto w-[9rem] bg-[#212121] hover:scale-110 hover:bg-red-600/90 transition-transform duration-700 ease-in-out border-white overflow-hidden rounded-lg shadow-lg">
           <div className="text-white">
-            <img src={game.image} alt="Clutch Logo" className="aspect-square object-cover" />
+            <img src={game.img} alt={game.name} className="aspect-square object-cover" />
             <p className="text-lg font-bold text-center inset-4 text-white">{game.name}</p>
           </div>
         </div>
