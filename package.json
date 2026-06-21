@@ -6,6 +6,7 @@
     "start": "node index.js",
     "start:worker": "node worker.js",
     "insta": "npm install && cd frontend && npm install",
+    "vercel-build": "cd frontend && npm install && npm run build",
     "dev": "node ./node_modules/concurrently/dist/bin/concurrently.js \"node ./node_modules/nodemon/bin/nodemon.js index.js\" \"cd frontend && npm run dev\"",
     "dev:full": "node ./node_modules/concurrently/dist/bin/concurrently.js \"node ./node_modules/nodemon/bin/nodemon.js index.js\" \"node worker.js\" \"cd frontend && npm run dev\"",
     "build": "cd frontend && npm run build",
