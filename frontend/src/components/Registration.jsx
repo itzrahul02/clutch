@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import backgroundReg from "../assets/tp3.jpg"
 import valorant from "../assets/vloo.png"
 import bgmi from "../assets/bgmi2.jpg"
-import freef from "../assets/kellyy.jpg"
+import freef from "../assets/Kellyy.jpg"
 import callof from "../assets/cod2.jpg"
 import fiifaa from "../assets/fifa1.jpg"
 import mortal from "../assets/mc1.jpg"
