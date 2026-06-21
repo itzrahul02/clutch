@@ -66,7 +66,7 @@ const teamRouter = require('./routes/teamRouter');
 const playerRouter = require('./routes/playersRouter');
 const authRouter = require('./routes/authRouter');
 
-app.get('/',(req,res)=>{
+app.get('/api/status',(req,res)=>{
     res.json({
         message:`Backend is running on port: ${PORT}`
     })
