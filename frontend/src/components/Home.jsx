@@ -41,7 +41,7 @@ function Home() {
     <>
       <Nav/>
       <div
-        className="mt-8 md:mt-12 bg-black  md:h-screen md:py-[5rem] relative"
+        className="mt-14 md:mt-16 bg-black min-h-[50vh] md:min-h-screen md:py-[5rem] relative flex items-center"
         style={{
           backgroundImage: `url(${wallpaper})`,
           backgroundSize: "cover",
@@ -49,13 +49,13 @@ function Home() {
           backgroundPosition: "center",
         }}
       >
-        <div className="md:h-screen h-[50vh] left-0 top-0 w-full absolute bg-black/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90" />
 
         {/* Carousel */}
-        <div className="z-10 flex justify-between items-center h-full relative">
+        <div className="z-10 flex justify-between items-center h-full w-full relative">
           {/* Left Arrow */}
           <div
-            className="absolute left-2 sm:left-4 p-2 sm:p-3 rounded-full bg-white/30 hover:bg-white/50 w-8 sm:w-12 h-8 sm:h-12 flex justify-center items-center text-white cursor-pointer z-20"
+            className="absolute left-2 sm:left-6 p-2 sm:p-3 rounded-full bg-black/50 border border-white/20 hover:bg-red-600/80 hover:border-red-500 w-10 sm:w-14 h-10 sm:h-14 flex justify-center items-center text-white cursor-pointer z-20 transition-all duration-300 hover:scale-110 backdrop-blur-sm"
             onClick={moveLeft}
             aria-label="Move to previous image"
           >
@@ -63,7 +63,7 @@ function Home() {
           </div>
 
           {/* Image Container */}
-          <div className="overflow-hidden w-full">
+          <div className="overflow-hidden w-full px-4 sm:px-16">
             <div
               className="flex transition-transform duration-1000 ease-in-out"
               style={{
@@ -75,7 +75,21 @@ function Home() {
                   key={index}
                   src={src}
                   alt={`Carousel image ${index + 1}`}
-                  className="h-[50vh] sm:h-[80vh] w-full object-contain rounded-md flex-shrink-0"
+                  className="h-[40vh] sm:h-[70vh] w-full object-contain flex-shrink-0 drop-shadow-[0_0_30px_rgba(220,38,38,0.2)]"
+                />
+              ))}
+            </div>
+
+            {/* Dots indicator */}
+            <div className="flex justify-center gap-2 mt-4 sm:mt-6">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setMove(index)}
+                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                    index === move ? 'bg-red-500 w-8' : 'bg-white/40 hover:bg-white/60'
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
                 />
               ))}
             </div>
@@ -83,7 +97,7 @@ function Home() {
 
           {/* Right Arrow */}
           <div
-            className="absolute right-2 sm:right-4 p-2 sm:p-3 rounded-full bg-white/30 hover:bg-white/50 w-8 sm:w-12 h-8 sm:h-12 flex justify-center items-center text-white cursor-pointer z-20"
+            className="absolute right-2 sm:right-6 p-2 sm:p-3 rounded-full bg-black/50 border border-white/20 hover:bg-red-600/80 hover:border-red-500 w-10 sm:w-14 h-10 sm:h-14 flex justify-center items-center text-white cursor-pointer z-20 transition-all duration-300 hover:scale-110 backdrop-blur-sm"
             onClick={moveRight}
             aria-label="Move to next image"
           >

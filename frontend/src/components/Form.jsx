@@ -98,104 +98,105 @@ function Form() {
   history.replaceState(null,"","/")
   return (
     <>
-      <div className="md:flex md:flex-row-reverse justify-between items-center
-                       h-screen
-                       bg-gradient-to-r from-indigo-950 from-10% via-blue-950 via-20% to-black 100% ">
+      <div className="md:flex md:flex-row-reverse justify-between items-stretch
+                       min-h-screen
+                       bg-gradient-to-br from-zinc-950 via-black to-zinc-950">
         
 
         {/* Right Game Info Section */}
-        <div className="details  w-100% md:block justify-center items-center overflow-y-scroll md:h-screen text-wrap bg-amber-400 font-medium p-8 md:w-[30%]">
+        <div className="details w-full md:w-[30%] md:block justify-center items-center overflow-y-auto md:h-screen bg-gradient-to-b from-red-600 to-amber-500 font-medium p-6 sm:p-8">
           <img
             src={selectGame?.img}
             alt=""
-            className="md:w-full w-[60%] rounded-xl object-cover aspect-square"
+            className="md:w-full w-[50%] mx-auto rounded-2xl object-cover aspect-square shadow-xl border-2 border-white/20"
           />
-          <div className="p-2">
-            <p className="md:text-3xl text-2xl font-bold">{selectGame?.name[0].toUpperCase()+selectGame?.name.slice(1)}</p>
-            <ul className="list-disc px-8 text-lg">
-              <li>Maximum  Player: {selectGame?.maxPlayers}</li>
+          <div className="p-2 mt-4">
+            <p className="md:text-3xl text-2xl font-bold text-white drop-shadow-lg">{selectGame?.name[0].toUpperCase()+selectGame?.name.slice(1)}</p>
+            <ul className="list-disc px-8 text-lg text-white/90 mt-2">
+              <li>Maximum Player: {selectGame?.maxPlayers}</li>
             </ul>
-              <p className="font-bold text-xl">Rules</p>
-              {selectGame?.rules.map((each)=>(
-                <>
-                <li className="list-disc px-8 text-lg">{each}</li>
-                </>
+              <p className="font-bold text-xl mt-4 text-white">Rules</p>
+              {selectGame?.rules.map((each, i)=>(
+                <li key={i} className="list-disc px-8 text-lg text-white/90">{each}</li>
               ))}
           </div>
         </div>
-        <div className="flex border mx-auto mt-[2rem] md:mt-0 md:h-2/3 border-white bg-black rounded-lg overflow-hidden">
-          {/* Left Image Section */}
-          <div className="md:block hidden">
-            <img
-              src={formImage}
-              alt="Form"
-              className="w-[350px] h-[500px] border-white object-cover"
-            />
-          </div>
 
-          {/* Right Form Section */}
-          <div className="text-white overflow-y-scroll p-6 w-[25rem]">
-            <h2 className="text-xl font-bold mb-4 text-center">Register Now</h2>
-            <form className="flex flex-col gap-3">
-              <label htmlFor="team">Team Name</label>
-              
-              <input
-                type="text"
-                placeholder="Enter your Team"
-                className="p-2 bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                required
-                onChange={(e)=>setTeamName(e.target.value)}
+        {/* Form Container */}
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
+          <div className="flex border border-zinc-700/50 bg-zinc-900/80 backdrop-blur-lg rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] max-w-3xl w-full">
+            {/* Left Image Section */}
+            <div className="md:block hidden">
+              <img
+                src={formImage}
+                alt="Form"
+                className="w-[350px] h-full object-cover"
               />
-              <label htmlFor="team">Contact</label>
-              <input
-                type="number"
-                placeholder="Enter your Contact"
-                className="p-2 bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                required
-                onChange={(e)=>setContactData(e.target.value)}
-              />
+            </div>
 
-              <label htmlFor="games">Select a Game</label>
-              <select
-                className="p-2 bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                required
-                value={game}
-                onChange={(e) => navigate(`/form?game=${e.target.value}`)}
-              >
-                <option value="" className="bg-black">
-                  Choose a Game
-                </option>
-                {gameOptions.map((g, index) => (
-                  <option
-                    key={index}
-                    value={g.name}
-                    className="bg-black text-white"
-                  >
-                    {g.name}
-                  </option>
-                ))}
-              </select>
+            {/* Right Form Section */}
+            <div className="text-white overflow-y-auto max-h-[80vh] p-6 sm:p-8 w-full md:w-[25rem]">
+              <h2 className="text-2xl font-bold mb-6 text-center bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">Register Your Team</h2>
+              <form className="flex flex-col gap-4">
+                <label htmlFor="team" className="text-sm text-zinc-400 font-medium">Team Name</label>
+                
+                <input
+                  type="text"
+                  placeholder="Enter your Team"
+                  className="p-3 bg-zinc-950/80 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all duration-300 placeholder-zinc-500"
+                  required
+                  onChange={(e)=>setTeamName(e.target.value)}
+                />
+                <label htmlFor="team" className="text-sm text-zinc-400 font-medium">Contact</label>
+                <input
+                  type="number"
+                  placeholder="Enter your Contact"
+                  className="p-3 bg-zinc-950/80 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all duration-300 placeholder-zinc-500"
+                  required
+                  onChange={(e)=>setContactData(e.target.value)}
+                />
 
-              {details.map((detail, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col gap-3 border p-4 rounded-md"
+                <label htmlFor="games" className="text-sm text-zinc-400 font-medium">Select a Game</label>
+                <select
+                  className="p-3 bg-zinc-950/80 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all duration-300"
+                  required
+                  value={game}
+                  onChange={(e) => navigate(`/form?game=${e.target.value}`)}
                 >
-                  <div className="flex items-center justify-center">Player {index+1}<span className="opacity-0">_</span> {index===0?(<p>(IGL)</p>):null}</div>
+                  <option value="" className="bg-zinc-900">
+                    Choose a Game
+                  </option>
+                  {gameOptions.map((g, index) => (
+                    <option
+                      key={index}
+                      value={g.name}
+                      className="bg-zinc-900 text-white"
+                    >
+                      {g.name}
+                    </option>
+                  ))}
+                </select>
+
+                {details.map((detail, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-col gap-3 border border-zinc-700/50 bg-zinc-800/30 p-4 rounded-xl transition-all duration-300 hover:border-zinc-600"
+                  >
+                  <div className="flex items-center justify-center text-sm font-semibold text-red-400">Player {index+1}<span className="opacity-0">_</span> {index===0?(<p>(IGL)</p>):null}</div>
                   <div className="flex justify-between items-center">
-                    <label htmlFor={`name-${index}`}>Name</label>
+                    <label htmlFor={`name-${index}`} className="text-sm text-zinc-400">Name</label>
                     <span
-                      className="text-red-600 font-bold text-md cursor-pointer"
+                      className="text-red-500 font-bold text-sm cursor-pointer hover:text-red-400 bg-red-950/30 px-2 py-0.5 rounded transition-colors"
                       onClick={() => removeMember(index)}
                     >
-                      X
+                      ✕
                     </span>
                   </div>
                   <input
                     type="text"
                     id={`name-${index}`}
                     placeholder="Enter your name"
-                    className="p-2 bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="p-3 bg-zinc-950/80 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all duration-300 placeholder-zinc-500"
                     required
                     value={detail.name}
                     onChange={(e) =>
@@ -204,12 +205,12 @@ function Form() {
                   />
                   {game==="valorant"?(
                     <>
-                    <label htmlFor={`UID-${index}`}>Riot ID*</label>
+                    <label htmlFor={`UID-${index}`} className="text-sm text-zinc-400">Riot ID*</label>
                     <input
                       type="UID"
                       id={`UID-${index}`}
                       placeholder="Enter your User ID"
-                      className="p-2 bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      className="p-3 bg-zinc-950/80 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all duration-300 placeholder-zinc-500"
                       required
                       value={detail.UID}
                       onChange={(e) =>
@@ -219,24 +220,24 @@ function Form() {
                     </>
                   ):(
                     <>
-                    <label htmlFor={`UID-${index}`}>User ID*</label>
+                    <label htmlFor={`UID-${index}`} className="text-sm text-zinc-400">User ID*</label>
                   <input
                     type="UID"
                     id={`UID-${index}`}
                     placeholder="Enter your User ID"
-                    className="p-2 bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="p-3 bg-zinc-950/80 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all duration-300 placeholder-zinc-500"
                     required
                     value={detail.UID}
                     onChange={(e) =>
                       handleInputChange(index, "UID", e.target.value)
                     }
                   />
-                  <label htmlFor={`IGN-${index}`}>IGN*</label>
+                  <label htmlFor={`IGN-${index}`} className="text-sm text-zinc-400">IGN*</label>
                   <input
                     type="IGN"
                     id={`IGN-${index}`}
                     placeholder="Enter your IGN"
-                    className="p-2 bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="p-3 bg-zinc-950/80 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all duration-300 placeholder-zinc-500"
                     required
                     value={detail.IGN}
                     onChange={(e) =>
@@ -246,12 +247,12 @@ function Form() {
                     </>
                   )}
                   
-                  <label htmlFor={`email-${index}`}>Email*</label>
+                  <label htmlFor={`email-${index}`} className="text-sm text-zinc-400">Email*</label>
                   <input
                     type="email"
                     id={`email-${index}`}
                     placeholder="Enter your Email"
-                    className="p-2 bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="p-3 bg-zinc-950/80 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all duration-300 placeholder-zinc-500"
                     required
                     value={detail.email}
                     onChange={(e) =>
@@ -263,13 +264,13 @@ function Form() {
               ))}
 
               <span
-                className="w-fit  text-blue-300 cursor-pointer hover:text-blue-500"
+                className="w-fit text-red-400 cursor-pointer hover:text-red-300 font-medium text-sm border border-red-500/30 px-4 py-2 rounded-lg hover:bg-red-950/30 transition-all duration-300"
                 onClick={addMember}
               >
                 + Add Member
               </span>
               <button
-                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 rounded-md mt-3 transition-all"
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-3 rounded-lg mt-3 transition-all duration-300 shadow-lg hover:shadow-green-600/25 hover:-translate-y-0.5 active:translate-y-0"
                 onClick={handleSubmit}
 
               >
@@ -277,6 +278,7 @@ function Form() {
               </button>
             </form>
           </div>
+        </div>
         </div>
       </div>
     </>
