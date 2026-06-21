@@ -30,7 +30,18 @@ app.use(
     })
 );
 
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            imgSrc: ["'self'", "data:", "https:", "http:"],
+            connectSrc: ["'self'", "https:", "http:"],
+            fontSrc: ["'self'", "https:", "data:"],
+        },
+    },
+}));
 app.use(compression());
 
 const limiter = rateLimit({
