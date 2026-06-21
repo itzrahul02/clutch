@@ -1,19 +1,47 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "index.js",
-        "use": "@vercel/node"
-      }, {
-        "src": "frontend/dist/**/*",
-        "use": "@vercel/static"
+  "version": 2,
+  "builds": [
+    {
+      "src": "index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "frontend/dist"
       }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "/index.js"
-      }
-    ]
-  }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/index.js"
+    },
+    {
+      "src": "/admin/(.*)",
+      "dest": "/index.js"
+    },
+    {
+      "src": "/players/(.*)",
+      "dest": "/index.js"
+    },
+    {
+      "src": "/teams/(.*)",
+      "dest": "/index.js"
+    },
+    {
+      "src": "/games/(.*)",
+      "dest": "/index.js"
+    },
+    {
+      "src": "/(.*\\.[a-zA-Z0-9]+)$",
+      "dest": "/frontend/dist/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/dist/index.html"
+    }
+  ]
+}
   
