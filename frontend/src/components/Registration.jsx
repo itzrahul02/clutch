@@ -47,7 +47,12 @@ export function Register() {
         <Link to={`/form?game=${game.name}`} key={game._id || index} >
         <div className="border md:w-[15rem] mx-auto w-[9rem] bg-[#212121] hover:scale-110 hover:bg-red-600/90 transition-transform duration-700 ease-in-out border-white overflow-hidden rounded-lg shadow-lg">
           <div className="text-white">
-            <img src={game.img} alt={game.name} className="aspect-square object-cover" />
+            <img
+              src={game.img}
+              alt={game.name}
+              className="aspect-square object-cover"
+              onError={(e) => { e.target.src = "https://placehold.co/300x300/212121/white?text=" + encodeURIComponent(game.name); }}
+            />
             <p className="text-lg font-bold text-center inset-4 text-white">{game.name}</p>
           </div>
         </div>
