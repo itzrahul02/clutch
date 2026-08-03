@@ -1,256 +1,246 @@
-# Clutch - Scaled Event Platform (Backend + Frontend)
+# Clutch — Esports Tournament Platform
 
-Clutch is now implemented as a production-style tournament registration platform with authentication, role-based access, validation, background job processing, API docs, and containerized local deployment.
+Clutch is a full-stack platform for running campus esports events. Players can discover games and register their teams, while coordinators can create games and publish tournaments. The project is designed as a practical tournament-management foundation rather than a static registration page.
 
-This README explains what each major addition does and why it exists from an industry point of view.
+## What you can do today
 
-## What Is Implemented
+### Players
 
-### 1) Authentication and Authorization
-- JWT-based auth is implemented for protected APIs.
-- Roles are implemented: `admin`, `coordinator`, `player`.
-- Protected backend routes verify token and role before allowing access.
-- Frontend now has login/register flows and protected UI routes.
+- Browse the public tournament hub.
+- Filter tournaments by status and search by title.
+- Open a tournament page to see its game, schedule, format, prize pool, registration deadline, and rules.
+- Register a team for a game and verify player email addresses.
+- Create an account and sign in.
 
-Why this matters:
-- This separates public and privileged actions, which is expected in real-world systems.
+### Coordinators and admins
 
-### 2) Request Validation with Zod
-- Request payloads and params are validated using Zod schemas.
-- Validation runs before controller logic.
-- Invalid input returns clear 4xx-style errors.
+- Create games with player limits, artwork, and rules.
+- Create upcoming single-elimination or round-robin tournaments.
+- Set registration deadlines, start times, team limits, entry fee, prize pool, banner, and rules.
+- Use protected routes and APIs through JWT role-based authorization.
 
-Why this matters:
-- Prevents bad data from entering core business logic.
-- Keeps controller code cleaner and predictable.
+## Product map
 
-### 3) Centralized Error Handling
-- Async handlers route errors to one error middleware.
-- Operational errors and validation issues are normalized.
+```text
+Public site
+├── Home                 Landing page, game showcase, event highlights
+├── Tournament hub       Search and filter active / upcoming / completed events
+├── Tournament detail    Rules, schedule, prize pool and registration CTA
+├── Team registration    Team and player entry for a selected game
+├── Sign in / Register   Account access
+└── Organizer workspace  Protected game and tournament creation tools
+```
 
-Why this matters:
-- Consistent API error shape helps frontend and observability.
+## Technology
 
-### 4) Security and Hardening Middleware
-- `helmet` for security headers.
-- `express-rate-limit` for request throttling.
-- `compression` for response optimization.
-- CORS is environment-driven.
+| Area | Tools |
+| --- | --- |
+| Frontend | React, Vite, React Router, Tailwind CSS, Axios |
+| Backend | Node.js, Express, Mongoose, Zod |
+| Data | MongoDB |
+| Authentication | JWT, bcryptjs, role-based access control |
+| Background jobs | Redis, BullMQ, Nodemailer |
+| Operations | Docker, Docker Compose, Pino logging, Swagger/OpenAPI |
 
-Why this matters:
-- Baseline protection and performance for internet-facing services.
-
-### 5) Logging and Observability Basics
-- Structured logging is enabled through `pino` and `pino-http`.
-- Request-level logs include response status and latency context.
-
-Why this matters:
-- Better debugging, monitoring, and incident triage in production.
-
-### 6) Redis + BullMQ Background Jobs
-- Team registration enqueues email verification jobs.
-- A dedicated worker consumes jobs and sends emails.
-- Retry/backoff policies are configured on queue jobs.
-- If queue is unavailable, fallback delivery logic is used.
-
-Why this matters:
-- API response is decoupled from email network latency.
-- Improves reliability and throughput under load.
-
-### 7) Docker and Docker Compose Stack
-- Full local stack is containerized: frontend, backend, worker, MongoDB, Redis.
-- One command can bring up all services.
-
-Why this matters:
-- Reproducible setup across machines.
-- Faster onboarding and less environment drift.
-
-### 8) OpenAPI/Swagger Documentation
-- Swagger UI is exposed at:
-  - `/api/docs`
-  - `/api/v1/docs`
-
-Why this matters:
-- Enables clear API discoverability for frontend/dev/test teams.
-
-### 9) Pagination and Query Controls
-- Games listing supports `page`, `limit`, `search`, `sortBy`, `sortOrder`.
-- API response includes pagination metadata.
-
-Why this matters:
-- Scale-ready list APIs avoid large payloads and improve UX.
-
-### 10) Frontend Integration with Backend Auth
-- Frontend now stores and sends JWT via API client interceptor.
-- Auth context manages session and user info.
-- Protected frontend route guards admin/coordinator pages.
-- Navbar reflects login state and supports logout.
-
-Why this matters:
-- Backend security model is reflected in actual user flows.
-
-## Architecture Flow
+## Architecture
 
 ```mermaid
 flowchart LR
-  U[User Browser] --> F[Frontend Vite App]
-  F -->|/api requests| B[Express Backend]
-  B --> M[(MongoDB)]
-  B -->|enqueue mail job| R[(Redis)]
-  W[Worker Process] -->|consume jobs| R
-  W --> S[SMTP Provider]
+  Browser[React client] --> API[Express API]
+  API --> Mongo[(MongoDB)]
+  API --> Redis[(Redis / BullMQ)]
+  Worker[Email worker] --> Redis
+  Worker --> SMTP[SMTP provider]
+  Admin[Admin / coordinator] --> API
 ```
 
-## Tech Stack
+The React app calls the Express API under `/api`. The API validates incoming data, checks permissions where needed, persists to MongoDB, and puts email-verification work onto the Redis queue. If Redis is unavailable, registration falls back to direct email delivery.
 
-### Backend
-- Node.js + Express
-- Mongoose (MongoDB)
-- Zod validation
-- JWT (`jsonwebtoken`)
-- Security middleware (`helmet`, `express-rate-limit`, `compression`)
-- Logging (`pino`, `pino-http`)
-- Queue (`bullmq`, `ioredis`)
-- API docs (`swagger-jsdoc`, `swagger-ui-express`)
+## Roles and access
 
-### Frontend
-- React + Vite
-- React Router
-- Axios API client with auth header interceptor
+| Role | Main permissions |
+| --- | --- |
+| `player` | Create an account, browse events, register a team |
+| `coordinator` | Player permissions plus game and tournament creation |
+| `admin` | Full coordinator permissions; intended for platform operators |
 
-### Infra
-- Docker
-- Docker Compose
+> For a public production deployment, do **not** allow a visitor to select `admin` or `coordinator` during sign-up. Assign privileged roles from a protected admin process instead.
+
+## API reference
+
+Swagger is available after starting the server:
+
+- `http://localhost:1234/api/docs`
+- `http://localhost:1234/api/openapi.json`
+
+### Authentication
+
+| Method | Path | Description |
+| --- | --- | --- |
+| `POST` | `/api/auth/register` | Create an account and receive a JWT |
+| `POST` | `/api/auth/login` | Sign in and receive a JWT |
+| `GET` | `/api/auth/me` | Return the signed-in user |
+
+### Games and teams
+
+| Method | Path | Access | Description |
+| --- | --- | --- | --- |
+| `GET` | `/api/games` | Public | Paginated game list; supports `page`, `limit`, `search`, `sortBy`, `sortOrder` |
+| `POST` | `/api/games/add` | Admin / coordinator | Create a game |
+| `POST` | `/api/team` | Public | Register a team and player list for a game |
+| `GET` | `/api/team/:gameName` | Admin / coordinator | View teams registered for a game |
+| `GET` | `/api/player/:token` | Public | Verify a player email token |
+
+### Tournaments
+
+| Method | Path | Access | Description |
+| --- | --- | --- | --- |
+| `GET` | `/api/tournaments` | Public | List tournaments; optional `status`, `gameId`, and `search` filters |
+| `GET` | `/api/tournaments/:slug` | Public | Fetch one tournament’s public detail |
+| `POST` | `/api/tournaments` | Admin / coordinator | Create a tournament |
+
+Example create request:
+
+```json
+{
+  "title": "Clutch Valorant Open",
+  "gameId": "MONGODB_GAME_ID",
+  "description": "A campus Valorant tournament for five-player teams.",
+  "format": "single-elimination",
+  "startsAt": "2026-09-12T09:00:00.000Z",
+  "registrationClosesAt": "2026-09-10T18:00:00.000Z",
+  "maxTeams": 16,
+  "prizePool": 10000,
+  "entryFee": 0,
+  "bannerUrl": "https://example.com/banner.jpg",
+  "rules": ["Teams must check in 30 minutes before the match.", "No substitutes after bracket lock."]
+}
+```
+
+Send the JWT from login in the request header:
+
+```text
+Authorization: Bearer YOUR_ACCESS_TOKEN
+```
+
+## Local setup
+
+### Requirements
+
+- Node.js 18 or newer
 - MongoDB
-- Redis
+- Redis (recommended for queued verification email)
+- An SMTP account if you want verification mail delivery
 
-## Environment Variables
+### 1. Configure environment variables
 
-Copy `.env.example` to `.env` and fill values.
+Copy the example file:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Then supply values in `.env`:
 
 ```env
 NODE_ENV=development
 PORT=1234
-MONGO_URI=
+MONGO_URI=mongodb://127.0.0.1:27017/clutch
 REDIS_URL=redis://localhost:6379
 CLIENT_ORIGIN=http://localhost:5173
 APP_BASE_URL=http://localhost:1234
-JWT_SECRET=replace-with-strong-secret
+JWT_SECRET=use-a-long-random-secret
 JWT_EXPIRES_IN=1d
-EMAIL=
-PASS=
+EMAIL=your-smtp-email
+PASS=your-smtp-password-or-app-password
 VITE_API_PROXY_TARGET=http://localhost:1234
 ```
 
-Variable notes:
-- `MONGO_URI`: MongoDB connection string for app data.
-- `REDIS_URL`: Redis used by BullMQ queue + worker.
-- `JWT_SECRET`: key used to sign and verify access tokens.
-- `CLIENT_ORIGIN`: allowed browser origin for CORS.
-- `APP_BASE_URL`: backend base URL used in verification links.
-- `EMAIL` / `PASS`: SMTP credentials for outgoing mail.
+### 2. Install dependencies
 
-## How to Run
-
-### Option A: Local (without Docker)
-
-1. Install dependencies:
-
-```bash
+```powershell
 npm install
-npm run insta
+Set-Location frontend
+npm install
+Set-Location ..
 ```
 
-2. Run backend + frontend:
+### 3. Run the application
 
-```bash
+Start backend and frontend together:
+
+```powershell
 npm run dev
 ```
 
-3. Run backend + worker + frontend:
+Start backend, frontend, and the email worker:
 
-```bash
+```powershell
 npm run dev:full
 ```
 
-4. Run services separately if needed:
+Open these URLs:
 
-```bash
-npm start
-npm run start:worker
-cd frontend && npm run dev
-```
+- Frontend: `http://localhost:5173`
+- Backend health check: `http://localhost:1234/healthz`
+- API docs: `http://localhost:1234/api/docs`
 
-### Option B: Docker Compose (recommended)
+### Docker option
 
-```bash
+Docker starts the frontend, API, worker, MongoDB, and Redis together:
+
+```powershell
 docker compose up --build
 ```
 
-Services after startup:
-- Frontend: http://localhost:5173
-- Backend: http://localhost:1234
-- Swagger: http://localhost:1234/api/docs
-- MongoDB: localhost:27017
-- Redis: localhost:6379
+## Useful commands
 
-## API Summary
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Run backend and frontend in development |
+| `npm run dev:full` | Run backend, frontend, and email worker |
+| `npm run build` | Build the React client for production |
+| `npm test` | Run backend tests |
+| `npm run db:indexes` | Create declared database indexes |
+| `npm start` | Run backend only |
+| `npm run start:worker` | Run the email queue worker only |
 
-Base path: `/api` (also mirrored at `/api/v1`)
+## Repository guide
 
-### Auth
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `GET /api/auth/me`
+```text
+config/        Environment, database, Redis and Swagger configuration
+controllers/   API request handlers
+frontend/      React application
+middleware/    Authentication, validation and error handling
+models/        MongoDB/Mongoose schemas
+queue/         BullMQ queue definitions
+routes/        Express endpoints
+utils/         JWT, mail, logging and error helpers
+validators/    Zod schemas for incoming requests
+worker.js      Background email job consumer
+```
 
-### Games
-- `GET /api/games`
-  - query: `page`, `limit`, `search`, `sortBy`, `sortOrder`
-- `POST /api/games/add` (protected: admin/coordinator)
+## Recommended next modules
 
-### Team Registration
-- `POST /api/team`
-  - creates players and team
-  - enqueues verification emails via Redis queue
+The current tournament hub is a solid base. To make it a complete event platform, build these next:
 
-### Player Verification
-- `GET /api/player/:token`
+1. Tournament registration linked directly to teams.
+2. Bracket generation and match scheduling.
+3. Match result entry, winner advancement, and live score pages.
+4. Player and team profile pages with event history.
+5. Leaderboards, achievements, and organizer analytics.
+6. In-app notifications for check-in, match assignment, and results.
+7. Payments for paid-entry tournaments.
 
-### Team View
-- `GET /api/team/:gameName` (protected in current RBAC setup)
+## Quality checks
 
-## Testing
+Before opening a pull request, run:
 
-Run tests:
-
-```bash
+```powershell
+npm run build
 npm test
 ```
 
-Current suite includes health endpoint coverage and can be expanded to integration tests for auth, games, and team flows.
-
-## Frontend Notes
-
-- Frontend routes now include auth pages and a protected admin page.
-- Admin game creation calls protected backend endpoint with JWT.
-- Existing registration form was updated to match paginated games API response shape.
-
-## Important Operational Notes
-
-- Backend startup requires a valid `MONGO_URI`.
-- Worker startup requires a valid `REDIS_URL`.
-- If Redis is unavailable, email dispatch falls back to direct send in registration flow.
-- Swagger docs are served by backend and do not require frontend.
-
-## Repository Highlights
-
-- Backend app entry: `index.js`
-- Queue worker entry: `worker.js`
-- Compose stack: `docker-compose.yml`
-- Backend Dockerfile: `Dockerfile`
-- Frontend Dockerfile: `frontend/Dockerfile`
-- Environment template: `.env.example`
-
 ## License
 
-No license file is currently included. Add a `LICENSE` file if this repository will be distributed publicly.
+No license has been selected yet. Add a `LICENSE` file before distributing this project publicly.
