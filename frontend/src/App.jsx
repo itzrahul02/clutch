@@ -1,7 +1,7 @@
 import React from "react";
 import Home from "./pages/Home";
 import { Route,Routes } from "react-router-dom";
-import Form from "./components/Form";
+import Form from "./pages/Form";
 import Login from "./pages/Login";
 import RegisterAuth from "./pages/RegisterAuth";
 import AdminGames from "./pages/AdminGames";
