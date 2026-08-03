@@ -29,7 +29,7 @@ const worker = new Worker(
   {
     connection: redisConnection,
     concurrency: 10,
-  }
+  },
 );
 
 worker.on('completed', (job) => {

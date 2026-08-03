@@ -33,14 +33,14 @@ Public site
 
 ## Technology
 
-| Area | Tools |
-| --- | --- |
-| Frontend | React, Vite, React Router, Tailwind CSS, Axios |
-| Backend | Node.js, Express, Mongoose, Zod |
-| Data | MongoDB |
-| Authentication | JWT, bcryptjs, role-based access control |
-| Background jobs | Redis, BullMQ, Nodemailer |
-| Operations | Docker, Docker Compose, Pino logging, Swagger/OpenAPI |
+| Area            | Tools                                                 |
+| --------------- | ----------------------------------------------------- |
+| Frontend        | React, Vite, React Router, Tailwind CSS, Axios        |
+| Backend         | Node.js, Express, Mongoose, Zod                       |
+| Data            | MongoDB                                               |
+| Authentication  | JWT, bcryptjs, role-based access control              |
+| Background jobs | Redis, BullMQ, Nodemailer                             |
+| Operations      | Docker, Docker Compose, Pino logging, Swagger/OpenAPI |
 
 ## Architecture
 
@@ -58,11 +58,11 @@ The React app calls the Express API under `/api`. The API validates incoming dat
 
 ## Roles and access
 
-| Role | Main permissions |
-| --- | --- |
-| `player` | Create an account, browse events, register a team |
-| `coordinator` | Player permissions plus game and tournament creation |
-| `admin` | Full coordinator permissions; intended for platform operators |
+| Role          | Main permissions                                              |
+| ------------- | ------------------------------------------------------------- |
+| `player`      | Create an account, browse events, register a team             |
+| `coordinator` | Player permissions plus game and tournament creation          |
+| `admin`       | Full coordinator permissions; intended for platform operators |
 
 > For a public production deployment, do **not** allow a visitor to select `admin` or `coordinator` during sign-up. Assign privileged roles from a protected admin process instead.
 
@@ -75,29 +75,29 @@ Swagger is available after starting the server:
 
 ### Authentication
 
-| Method | Path | Description |
-| --- | --- | --- |
+| Method | Path                 | Description                         |
+| ------ | -------------------- | ----------------------------------- |
 | `POST` | `/api/auth/register` | Create an account and receive a JWT |
-| `POST` | `/api/auth/login` | Sign in and receive a JWT |
-| `GET` | `/api/auth/me` | Return the signed-in user |
+| `POST` | `/api/auth/login`    | Sign in and receive a JWT           |
+| `GET`  | `/api/auth/me`       | Return the signed-in user           |
 
 ### Games and teams
 
-| Method | Path | Access | Description |
-| --- | --- | --- | --- |
-| `GET` | `/api/games` | Public | Paginated game list; supports `page`, `limit`, `search`, `sortBy`, `sortOrder` |
-| `POST` | `/api/games/add` | Admin / coordinator | Create a game |
-| `POST` | `/api/team` | Public | Register a team and player list for a game |
-| `GET` | `/api/team/:gameName` | Admin / coordinator | View teams registered for a game |
-| `GET` | `/api/player/:token` | Public | Verify a player email token |
+| Method | Path                  | Access              | Description                                                                    |
+| ------ | --------------------- | ------------------- | ------------------------------------------------------------------------------ |
+| `GET`  | `/api/games`          | Public              | Paginated game list; supports `page`, `limit`, `search`, `sortBy`, `sortOrder` |
+| `POST` | `/api/games/add`      | Admin / coordinator | Create a game                                                                  |
+| `POST` | `/api/team`           | Public              | Register a team and player list for a game                                     |
+| `GET`  | `/api/team/:gameName` | Admin / coordinator | View teams registered for a game                                               |
+| `GET`  | `/api/player/:token`  | Public              | Verify a player email token                                                    |
 
 ### Tournaments
 
-| Method | Path | Access | Description |
-| --- | --- | --- | --- |
-| `GET` | `/api/tournaments` | Public | List tournaments; optional `status`, `gameId`, and `search` filters |
-| `GET` | `/api/tournaments/:slug` | Public | Fetch one tournament’s public detail |
-| `POST` | `/api/tournaments` | Admin / coordinator | Create a tournament |
+| Method | Path                     | Access              | Description                                                         |
+| ------ | ------------------------ | ------------------- | ------------------------------------------------------------------- |
+| `GET`  | `/api/tournaments`       | Public              | List tournaments; optional `status`, `gameId`, and `search` filters |
+| `GET`  | `/api/tournaments/:slug` | Public              | Fetch one tournament’s public detail                                |
+| `POST` | `/api/tournaments`       | Admin / coordinator | Create a tournament                                                 |
 
 Example create request:
 
@@ -195,15 +195,15 @@ docker compose up --build
 
 ## Useful commands
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Run backend and frontend in development |
-| `npm run dev:full` | Run backend, frontend, and email worker |
-| `npm run build` | Build the React client for production |
-| `npm test` | Run backend tests |
-| `npm run db:indexes` | Create declared database indexes |
-| `npm start` | Run backend only |
-| `npm run start:worker` | Run the email queue worker only |
+| Command                | Purpose                                 |
+| ---------------------- | --------------------------------------- |
+| `npm run dev`          | Run backend and frontend in development |
+| `npm run dev:full`     | Run backend, frontend, and email worker |
+| `npm run build`        | Build the React client for production   |
+| `npm test`             | Run backend tests                       |
+| `npm run db:indexes`   | Create declared database indexes        |
+| `npm start`            | Run backend only                        |
+| `npm run start:worker` | Run the email queue worker only         |
 
 ## Repository guide
 

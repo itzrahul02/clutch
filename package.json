@@ -6,9 +6,10 @@
     "start": "node index.js",
     "start:worker": "node worker.js",
     "insta": "npm install && cd frontend && npm install",
-    "dev": "node ./node_modules/concurrently/dist/bin/concurrently.js \"node ./node_modules/nodemon/bin/nodemon.js index.js\" \"cd frontend && npm run dev\"",
-    "dev:full": "node ./node_modules/concurrently/dist/bin/concurrently.js \"node ./node_modules/nodemon/bin/nodemon.js index.js\" \"node worker.js\" \"cd frontend && npm run dev\"",
+    "dev": "node ./node_modules/concurrently/dist/bin/index.js \"node ./node_modules/nodemon/bin/nodemon.js index.js\" \"cd frontend && npm run dev\"",
+    "dev:full": "node ./node_modules/concurrently/dist/bin/index.js \"node ./node_modules/nodemon/bin/nodemon.js index.js\" \"node worker.js\" \"cd frontend && npm run dev\"",
     "build": "cd frontend && npm run build",
+    "db:indexes": "node scripts/createIndexes.js",
     "test": "node ./node_modules/jest/bin/jest.js --runInBand",
     "test:watch": "node ./node_modules/jest/bin/jest.js --watch"
   },
@@ -43,6 +44,7 @@
   "devDependencies": {
     "concurrently": "^10.0.3",
     "jest": "^30.4.2",
+    "prettier": "^3.9.6",
     "supertest": "^7.2.2"
   }
 }

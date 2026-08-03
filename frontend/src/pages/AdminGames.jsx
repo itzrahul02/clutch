@@ -89,7 +89,10 @@ export default function AdminGames() {
           {message ? <p className="text-green-400">{message}</p> : null}
           {error ? <p className="text-red-400">{error}</p> : null}
 
-          <button type="submit" className="w-full rounded-md bg-red-600 hover:bg-red-500 transition p-3 font-semibold">
+          <button
+            type="submit"
+            className="w-full rounded-md bg-red-600 hover:bg-red-500 transition p-3 font-semibold"
+          >
             Save game
           </button>
         </form>

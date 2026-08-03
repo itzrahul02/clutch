@@ -1,9 +1,9 @@
-const { z } = require("zod");
+const { z } = require('zod');
 
 const playerSchema = z.object({
   name: z.string().min(2).max(100),
   UID: z.string().min(1).max(100),
-  IGN: z.string().max(100).optional().default(""),
+  IGN: z.string().max(100).optional().default(''),
   email: z.string().email(),
 });
 

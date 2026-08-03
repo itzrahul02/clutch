@@ -1,21 +1,75 @@
 const express = require('express');
-const { teams, team, players, player, leaderboard, matches, posts, createPost, adminUsers, updateRole, updateTeam, deleteTeam, updatePlayer, deletePlayer, sendPlayerNotification, myNotifications, requestCoordinator, roleRequests, reviewRoleRequest } = require('../controllers/platformController');
+const {
+  teams,
+  team,
+  players,
+  player,
+  leaderboard,
+  matches,
+  posts,
+  createPost,
+  adminUsers,
+  updateRole,
+  updateTeam,
+  deleteTeam,
+  updatePlayer,
+  deletePlayer,
+  sendPlayerNotification,
+  myNotifications,
+  requestCoordinator,
+  roleRequests,
+  reviewRoleRequest,
+} = require('../controllers/platformController');
 const asyncHandler = require('../middleware/asyncHandler');
 const { authenticate, authorize } = require('../middleware/auth.middleware');
 const router = express.Router();
-router.get('/teams', asyncHandler(teams)); router.get('/teams/:id', asyncHandler(team));
-router.get('/players', asyncHandler(players)); router.get('/players/:id', asyncHandler(player));
-router.get('/leaderboard', asyncHandler(leaderboard)); router.get('/matches', asyncHandler(matches));
-router.get('/community', asyncHandler(posts)); router.post('/community', authenticate, asyncHandler(createPost));
+router.get('/teams', asyncHandler(teams));
+router.get('/teams/:id', asyncHandler(team));
+router.get('/players', asyncHandler(players));
+router.get('/players/:id', asyncHandler(player));
+router.get('/leaderboard', asyncHandler(leaderboard));
+router.get('/matches', asyncHandler(matches));
+router.get('/community', asyncHandler(posts));
+router.post('/community', authenticate, asyncHandler(createPost));
 router.get('/notifications/me', authenticate, asyncHandler(myNotifications));
 router.post('/role-requests', authenticate, asyncHandler(requestCoordinator));
 router.get('/admin/users', authenticate, authorize('admin', 'coordinator'), asyncHandler(adminUsers));
-router.patch('/admin/users/:id/role', authenticate, authorize('admin', 'coordinator'), asyncHandler(updateRole));
+router.patch(
+  '/admin/users/:id/role',
+  authenticate,
+  authorize('admin', 'coordinator'),
+  asyncHandler(updateRole),
+);
 router.patch('/admin/teams/:id', authenticate, authorize('admin', 'coordinator'), asyncHandler(updateTeam));
 router.delete('/admin/teams/:id', authenticate, authorize('admin', 'coordinator'), asyncHandler(deleteTeam));
-router.patch('/admin/players/:id', authenticate, authorize('admin', 'coordinator'), asyncHandler(updatePlayer));
-router.delete('/admin/players/:id', authenticate, authorize('admin', 'coordinator'), asyncHandler(deletePlayer));
-router.post('/admin/players/:id/notifications', authenticate, authorize('admin', 'coordinator'), asyncHandler(sendPlayerNotification));
-router.get('/admin/role-requests', authenticate, authorize('admin', 'coordinator'), asyncHandler(roleRequests));
-router.patch('/admin/role-requests/:id', authenticate, authorize('admin', 'coordinator'), asyncHandler(reviewRoleRequest));
+router.patch(
+  '/admin/players/:id',
+  authenticate,
+  authorize('admin', 'coordinator'),
+  asyncHandler(updatePlayer),
+);
+router.delete(
+  '/admin/players/:id',
+  authenticate,
+  authorize('admin', 'coordinator'),
+  asyncHandler(deletePlayer),
+);
+router.post(
+  '/admin/players/:id/notifications',
+  authenticate,
+  authorize('admin', 'coordinator'),
+  asyncHandler(sendPlayerNotification),
+);
+router.get(
+  '/admin/role-requests',
+  authenticate,
+  authorize('admin', 'coordinator'),
+  asyncHandler(roleRequests),
+);
+router.patch(
+  '/admin/role-requests/:id',
+  authenticate,
+  authorize('admin', 'coordinator'),
+  asyncHandler(reviewRoleRequest),
+);
 module.exports = router;

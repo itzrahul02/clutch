@@ -5,16 +5,232 @@ import Nav from '../components/nav';
 import formImage from '../assets/form_image.jpg';
 import valorantImage from '../assets/vloo.png';
 
-const valorantFallback = { name: 'Valorant', minPlayers: 1, maxPlayers: 5, img: valorantImage, rules: ['Teams must check in before their match.', 'Use the registered Riot ID for all matches.', 'Follow organizer instructions during the event.'] };
+const valorantFallback = {
+  name: 'Valorant',
+  minPlayers: 1,
+  maxPlayers: 5,
+  img: valorantImage,
+  rules: [
+    'Teams must check in before their match.',
+    'Use the registered Riot ID for all matches.',
+    'Follow organizer instructions during the event.',
+  ],
+};
 const emptyPlayer = () => ({ name: '', UID: '', IGN: '', email: '' });
 
 export default function Form() {
-  const [searchParams] = useSearchParams(); const navigate = useNavigate(); const [games, setGames] = useState([]); const [teamName, setTeamName] = useState(''); const [contact, setContact] = useState(''); const [players, setPlayers] = useState([emptyPlayer()]); const [message, setMessage] = useState(''); const [error, setError] = useState(''); const [saving, setSaving] = useState(false);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [games, setGames] = useState([]);
+  const [teamName, setTeamName] = useState('');
+  const [contact, setContact] = useState('');
+  const [players, setPlayers] = useState([emptyPlayer()]);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
   const gameName = searchParams.get('game') || 'Valorant';
-  useEffect(() => { client.get('/api/games', { params: { limit: 100 } }).then((response) => setGames(response.data?.data || [])).catch(() => setGames([])); }, []);
-  const selectedGame = useMemo(() => games.find((game) => game.name.toLowerCase() === gameName.toLowerCase()) || valorantFallback, [games, gameName]);
-  const updatePlayer = (index, key, value) => setPlayers((current) => current.map((player, playerIndex) => playerIndex === index ? { ...player, [key]: value } : player));
-  const submit = async (event) => { event.preventDefault(); setSaving(true); setError(''); setMessage(''); try { await client.post('/api/team', { gameName: selectedGame.name, teamName, contact, teamPlayers: players }); setMessage('Team registered. Ask every player to verify their email.'); setTeamName(''); setContact(''); setPlayers([emptyPlayer()]); } catch (requestError) { setError(requestError.response?.data?.message || 'Could not register your team. Please check every field.'); } finally { setSaving(false); } };
-  return <div className="min-h-screen bg-zinc-950 text-white"><Nav /><main className="mx-auto grid max-w-7xl gap-8 px-4 pb-16 pt-28 sm:px-6 lg:grid-cols-[.8fr_1.2fr] lg:pt-32"><aside className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 lg:sticky lg:top-28 lg:h-fit"><img src={selectedGame.img} alt={selectedGame.name} className="h-52 w-full object-cover sm:h-64" /><div className="p-6"><p className="section-kicker">Selected game</p><h1 className="mt-2 text-4xl font-black">{selectedGame.name}</h1><div className="mt-5 grid grid-cols-2 gap-3"><div className="rounded-lg bg-zinc-950 p-3"><p className="text-xs text-zinc-500">Team size</p><p className="mt-1 font-bold">{selectedGame.minPlayers}–{selectedGame.maxPlayers}</p></div><div className="rounded-lg bg-zinc-950 p-3"><p className="text-xs text-zinc-500">Registration</p><p className="mt-1 font-bold text-emerald-400">Open</p></div></div><h2 className="mt-7 text-lg font-bold">Game rules</h2><ul className="mt-3 space-y-3 text-sm leading-6 text-zinc-300">{selectedGame.rules.map((rule, index) => <li key={index} className="flex gap-3"><span className="font-bold text-red-400">0{index + 1}</span>{rule}</li>)}</ul></div></aside><section className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 sm:p-8"><Link to="/games" className="text-sm font-bold text-red-400">← Browse all games</Link><h2 className="mt-5 text-3xl font-black">Register your team</h2><p className="mt-2 text-zinc-400">Add your team captain and players. We will send verification email links after submission.</p><form onSubmit={submit} className="mt-8 space-y-7"><div className="grid gap-5 sm:grid-cols-2"><Field label="Team name" value={teamName} onChange={setTeamName} placeholder="e.g. Clutch Titans" required /><Field label="Captain contact" value={contact} onChange={setContact} placeholder="10-digit phone number" required /></div><label className="block text-sm font-bold">Game<select value={games.some((game) => game.name === selectedGame.name) ? selectedGame.name : ''} onChange={(event) => navigate(`/form?game=${event.target.value}`)} className="mt-2 w-full rounded-lg border border-zinc-700 bg-zinc-950 p-3"><option value="">Valorant (default profile)</option>{games.map((game) => <option key={game._id} value={game.name}>{game.name}</option>)}</select></label><div><div className="flex items-center justify-between"><div><h3 className="text-xl font-bold">Team roster</h3><p className="mt-1 text-sm text-zinc-400">Add up to {selectedGame.maxPlayers} players.</p></div><button type="button" onClick={() => players.length < selectedGame.maxPlayers && setPlayers([...players, emptyPlayer()])} className="rounded-lg border border-red-500 px-3 py-2 text-sm font-bold text-red-300">+ Add player</button></div><div className="mt-5 space-y-5">{players.map((player, index) => <div key={index} className="rounded-xl border border-zinc-700 bg-zinc-950 p-4"><div className="flex items-center justify-between"><p className="font-bold">Player {index + 1}{index === 0 ? ' · Captain' : ''}</p>{players.length > 1 ? <button type="button" onClick={() => setPlayers(players.filter((_, playerIndex) => playerIndex !== index))} className="text-sm text-red-400">Remove</button> : null}</div><div className="mt-4 grid gap-4 sm:grid-cols-2"><Field label="Full name" value={player.name} onChange={(value) => updatePlayer(index, 'name', value)} required /><Field label={selectedGame.name.toLowerCase() === 'valorant' ? 'Riot ID' : 'User ID'} value={player.UID} onChange={(value) => updatePlayer(index, 'UID', value)} required /><Field label="In-game name" value={player.IGN} onChange={(value) => updatePlayer(index, 'IGN', value)} /><Field label="Email address" type="email" value={player.email} onChange={(value) => updatePlayer(index, 'email', value)} required /></div></div>)}</div></div>{message ? <p className="rounded-lg bg-emerald-500/10 p-4 text-emerald-300">{message}</p> : null}{error ? <p className="rounded-lg bg-red-500/10 p-4 text-red-300">{error}</p> : null}<button disabled={saving} className="w-full rounded-lg bg-red-600 p-4 font-bold transition hover:bg-red-500 disabled:opacity-60">{saving ? 'Registering team…' : 'Submit team registration'}</button></form></section></main></div>;
+  useEffect(() => {
+    client
+      .get('/api/games', { params: { limit: 100 } })
+      .then((response) => setGames(response.data?.data || []))
+      .catch(() => setGames([]));
+  }, []);
+  const selectedGame = useMemo(
+    () => games.find((game) => game.name.toLowerCase() === gameName.toLowerCase()) || valorantFallback,
+    [games, gameName],
+  );
+  const updatePlayer = (index, key, value) =>
+    setPlayers((current) =>
+      current.map((player, playerIndex) => (playerIndex === index ? { ...player, [key]: value } : player)),
+    );
+  const submit = async (event) => {
+    event.preventDefault();
+    setSaving(true);
+    setError('');
+    setMessage('');
+    try {
+      await client.post('/api/team', {
+        gameName: selectedGame.name,
+        teamName,
+        contact,
+        teamPlayers: players,
+      });
+      setMessage('Team registered. Ask every player to verify their email.');
+      setTeamName('');
+      setContact('');
+      setPlayers([emptyPlayer()]);
+    } catch (requestError) {
+      setError(
+        requestError.response?.data?.message || 'Could not register your team. Please check every field.',
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <div className="min-h-screen bg-zinc-950 text-white">
+      <Nav />
+      <main className="mx-auto grid max-w-7xl gap-8 px-4 pb-16 pt-28 sm:px-6 lg:grid-cols-[.8fr_1.2fr] lg:pt-32">
+        <aside className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 lg:sticky lg:top-28 lg:h-fit">
+          <img src={selectedGame.img} alt={selectedGame.name} className="h-52 w-full object-cover sm:h-64" />
+          <div className="p-6">
+            <p className="section-kicker">Selected game</p>
+            <h1 className="mt-2 text-4xl font-black">{selectedGame.name}</h1>
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="rounded-lg bg-zinc-950 p-3">
+                <p className="text-xs text-zinc-500">Team size</p>
+                <p className="mt-1 font-bold">
+                  {selectedGame.minPlayers}–{selectedGame.maxPlayers}
+                </p>
+              </div>
+              <div className="rounded-lg bg-zinc-950 p-3">
+                <p className="text-xs text-zinc-500">Registration</p>
+                <p className="mt-1 font-bold text-emerald-400">Open</p>
+              </div>
+            </div>
+            <h2 className="mt-7 text-lg font-bold">Game rules</h2>
+            <ul className="mt-3 space-y-3 text-sm leading-6 text-zinc-300">
+              {selectedGame.rules.map((rule, index) => (
+                <li key={index} className="flex gap-3">
+                  <span className="font-bold text-red-400">0{index + 1}</span>
+                  {rule}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </aside>
+        <section className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 sm:p-8">
+          <Link to="/games" className="text-sm font-bold text-red-400">
+            ← Browse all games
+          </Link>
+          <h2 className="mt-5 text-3xl font-black">Register your team</h2>
+          <p className="mt-2 text-zinc-400">
+            Add your team captain and players. We will send verification email links after submission.
+          </p>
+          <form onSubmit={submit} className="mt-8 space-y-7">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field
+                label="Team name"
+                value={teamName}
+                onChange={setTeamName}
+                placeholder="e.g. Clutch Titans"
+                required
+              />
+              <Field
+                label="Captain contact"
+                value={contact}
+                onChange={setContact}
+                placeholder="10-digit phone number"
+                required
+              />
+            </div>
+            <label className="block text-sm font-bold">
+              Game
+              <select
+                value={games.some((game) => game.name === selectedGame.name) ? selectedGame.name : ''}
+                onChange={(event) => navigate(`/form?game=${event.target.value}`)}
+                className="mt-2 w-full rounded-lg border border-zinc-700 bg-zinc-950 p-3"
+              >
+                <option value="">Valorant (default profile)</option>
+                {games.map((game) => (
+                  <option key={game._id} value={game.name}>
+                    {game.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold">Team roster</h3>
+                  <p className="mt-1 text-sm text-zinc-400">Add up to {selectedGame.maxPlayers} players.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    players.length < selectedGame.maxPlayers && setPlayers([...players, emptyPlayer()])
+                  }
+                  className="rounded-lg border border-red-500 px-3 py-2 text-sm font-bold text-red-300"
+                >
+                  + Add player
+                </button>
+              </div>
+              <div className="mt-5 space-y-5">
+                {players.map((player, index) => (
+                  <div key={index} className="rounded-xl border border-zinc-700 bg-zinc-950 p-4">
+                    <div className="flex items-center justify-between">
+                      <p className="font-bold">
+                        Player {index + 1}
+                        {index === 0 ? ' · Captain' : ''}
+                      </p>
+                      {players.length > 1 ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setPlayers(players.filter((_, playerIndex) => playerIndex !== index))
+                          }
+                          className="text-sm text-red-400"
+                        >
+                          Remove
+                        </button>
+                      ) : null}
+                    </div>
+                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                      <Field
+                        label="Full name"
+                        value={player.name}
+                        onChange={(value) => updatePlayer(index, 'name', value)}
+                        required
+                      />
+                      <Field
+                        label={selectedGame.name.toLowerCase() === 'valorant' ? 'Riot ID' : 'User ID'}
+                        value={player.UID}
+                        onChange={(value) => updatePlayer(index, 'UID', value)}
+                        required
+                      />
+                      <Field
+                        label="In-game name"
+                        value={player.IGN}
+                        onChange={(value) => updatePlayer(index, 'IGN', value)}
+                      />
+                      <Field
+                        label="Email address"
+                        type="email"
+                        value={player.email}
+                        onChange={(value) => updatePlayer(index, 'email', value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {message ? <p className="rounded-lg bg-emerald-500/10 p-4 text-emerald-300">{message}</p> : null}
+            {error ? <p className="rounded-lg bg-red-500/10 p-4 text-red-300">{error}</p> : null}
+            <button
+              disabled={saving}
+              className="w-full rounded-lg bg-red-600 p-4 font-bold transition hover:bg-red-500 disabled:opacity-60"
+            >
+              {saving ? 'Registering team…' : 'Submit team registration'}
+            </button>
+          </form>
+        </section>
+      </main>
+    </div>
+  );
 }
-function Field({ label, type = 'text', value, onChange, placeholder, required = false }) { return <label className="block text-sm font-bold">{label}<input type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} required={required} className="mt-2 w-full rounded-lg border border-zinc-700 bg-zinc-900 p-3 font-normal outline-none focus:border-red-500" /></label>; }
+function Field({ label, type = 'text', value, onChange, placeholder, required = false }) {
+  return (
+    <label className="block text-sm font-bold">
+      {label}
+      <input
+        type={type}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        required={required}
+        className="mt-2 w-full rounded-lg border border-zinc-700 bg-zinc-900 p-3 font-normal outline-none focus:border-red-500"
+      />
+    </label>
+  );
+}

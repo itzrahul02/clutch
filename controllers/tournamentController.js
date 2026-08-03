@@ -2,9 +2,12 @@ const Tournament = require('../models/tournamentModel');
 const Game = require('../models/gamesModel');
 const AppError = require('../utils/appError');
 
-const slugify = (value) => value.toLowerCase().trim()
-  .replace(/[^a-z0-9]+/g, '-')
-  .replace(/(^-|-$)/g, '');
+const slugify = (value) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 
 const createTournament = async (req, res) => {
   const { gameId, title, ...details } = req.body;

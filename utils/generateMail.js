@@ -1,26 +1,25 @@
-
 const env = require('../config/env');
 
-const generateMail = (to, token = "",teamName = "", contact = 0, teamPlayers = []) => {
-    
-    const playerDetails = teamPlayers.map(team=>
+const generateMail = (to, token = '', teamName = '', contact = 0, teamPlayers = []) => {
+  const playerDetails = teamPlayers
+    .map(
+      (team) =>
         `
         <div>
           <div>${team.name}</div>
           <div>${team.email}</div>
         </div>
-        `
-    ).join("")
+        `,
+    )
+    .join('');
 
-    return {
-        from: `"Clutch IIIT Kota" <${process.env.EMAIL}>`,
-        to,
-        subject: "Clutch event registration confirmation",
-        text: token,
+  return {
+    from: `"Clutch IIIT Kota" <${process.env.EMAIL}>`,
+    to,
+    subject: 'Clutch event registration confirmation',
+    text: token,
 
-        html: 
-        
-        `
+    html: `
         <div>Thank you for registering for the event hosted by Clutch! We're thrilled to have you join us for an epic gaming experience.</div>
         <div>To complete your registration, please verify your email by clicking the link below:</div>
          <p> <a href="${env.APP_BASE_URL}/api/player/${token}">Verification Link</a></p>
@@ -34,9 +33,8 @@ If you did not register for this event, please ignore this email. For any querie
         <div>Asmit Verma</div>
         <div>Coordinator</div>
         <div>Team Clutch</div>        
-        `
-
-    };
+        `,
+  };
 };
 
 module.exports = generateMail;

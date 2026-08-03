@@ -1,4 +1,5 @@
 const swaggerJSDoc = require('swagger-jsdoc');
+const path = require('path');
 const env = require('../env');
 
 const options = {
@@ -8,6 +9,9 @@ const options = {
       title: 'Clutch API',
       version: '1.0.0',
       description: 'Gaming event platform backend APIs',
+      contact: {
+        name: 'Clutch API Support',
+      },
     },
     servers: [
       {
@@ -22,9 +26,21 @@ const options = {
           bearerFormat: 'JWT',
         },
       },
+      schemas: {
+        Error: {
+          type: 'object',
+          required: ['success', 'message'],
+          properties: {
+            success: { type: 'boolean', example: false },
+            message: { type: 'string', example: 'A validation error occurred' },
+          },
+        },
+      },
     },
   },
-  apis: ['./routes/*.js'],
+  // An absolute glob works in serverless deployments, where process.cwd()
+  // is not guaranteed to be the project root.
+  apis: [__dirname.split(path.sep).join('/') + '/../../routes/**/*.js'],
 };
 
 module.exports = swaggerJSDoc(options);

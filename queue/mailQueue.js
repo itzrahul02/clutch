@@ -6,9 +6,7 @@ const MAIL_QUEUE_NAME = 'mail-queue';
 
 const redisConnection = createRedisConnection();
 
-const mailQueue = redisConnection
-  ? new Queue(MAIL_QUEUE_NAME, { connection: redisConnection })
-  : null;
+const mailQueue = redisConnection ? new Queue(MAIL_QUEUE_NAME, { connection: redisConnection }) : null;
 
 const enqueueVerificationMail = async ({ to, token, teamName, contact, teamPlayers }) => {
   if (!mailQueue) {
@@ -38,7 +36,7 @@ const enqueueVerificationMail = async ({ to, token, teamName, contact, teamPlaye
       removeOnFail: {
         age: 86400,
       },
-    }
+    },
   );
 
   return job.id;

@@ -1,4 +1,4 @@
-const AppError = require("../utils/appError");
+const AppError = require('../utils/appError');
 
 const validate = (schema) => (req, _res, next) => {
   const result = schema.safeParse({
@@ -9,8 +9,8 @@ const validate = (schema) => (req, _res, next) => {
 
   if (!result.success) {
     const message = result.error.issues
-      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-      .join("; ");
+      .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+      .join('; ');
     return next(new AppError(message, 400));
   }
 
