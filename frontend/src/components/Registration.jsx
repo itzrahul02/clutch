@@ -31,7 +31,9 @@ export function Register() {
     >
       {/* Red Divider */}
 
-      <div className="w-4/5 mx-auto h-0.5 bg-red-700 mb-8"></div>
+      <div className="relative z-10">
+        {/* Red Divider with glow */}
+        <div className="w-4/5 mx-auto h-[2px] bg-gradient-to-r from-transparent via-red-600 to-transparent mb-8 shadow-[0_0_10px_rgba(220,38,38,0.5)]"></div>
 
       {/* Registration Image */}
       <div className="flex justify-center items-center">

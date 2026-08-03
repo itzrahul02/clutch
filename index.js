@@ -38,7 +38,18 @@ app.use(
   }),
 );
 
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            imgSrc: ["'self'", "data:", "https:", "http:"],
+            connectSrc: ["'self'", "https:", "http:"],
+            fontSrc: ["'self'", "https:", "data:"],
+        },
+    },
+}));
 app.use(compression());
 
 const limiter = rateLimit({
@@ -58,6 +69,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: env.CLIENT_ORIGIN }));
 
 const { dbConnect } = require('./config/dbConnect');
+
+// Lazy DB connection for serverless (Vercel)
+let dbConnected = false;
+app.use(async (_req, _res, next) => {
+    if (!dbConnected) {
+        await dbConnect();
+        dbConnected = true;
+    }
+    next();
+});
 
 const gamesRouter = require('./routes/gamesRouter');
 const teamRouter = require('./routes/teamRouter');

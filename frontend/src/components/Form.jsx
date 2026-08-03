@@ -101,11 +101,11 @@ function Form() {
                        bg-gradient-to-r from-indigo-950 from-10% via-blue-950 via-20% to-black 100% "
       >
         {/* Right Game Info Section */}
-        <div className="details  w-100% md:block justify-center items-center overflow-y-scroll md:h-screen text-wrap bg-amber-400 font-medium p-8 md:w-[30%]">
+        <div className="details w-full md:w-[30%] md:block justify-center items-center overflow-y-auto md:h-screen bg-gradient-to-b from-red-600 to-amber-500 font-medium p-6 sm:p-8">
           <img
             src={selectGame?.img}
             alt=""
-            className="md:w-full w-[60%] rounded-xl object-cover aspect-square"
+            className="md:w-full w-[50%] mx-auto rounded-2xl object-cover aspect-square shadow-xl border-2 border-white/20"
           />
           <div className="p-2">
             <p className="md:text-3xl text-2xl font-bold">
@@ -149,6 +149,7 @@ function Form() {
                 required
                 onChange={(e) => setContactData(e.target.value)}
               />
+            </div>
 
               <label htmlFor="games">Select a Game</label>
               <select
@@ -174,19 +175,19 @@ function Form() {
                     <span className="opacity-0">_</span> {index === 0 ? <p>(IGL)</p> : null}
                   </div>
                   <div className="flex justify-between items-center">
-                    <label htmlFor={`name-${index}`}>Name</label>
+                    <label htmlFor={`name-${index}`} className="text-sm text-zinc-400">Name</label>
                     <span
-                      className="text-red-600 font-bold text-md cursor-pointer"
+                      className="text-red-500 font-bold text-sm cursor-pointer hover:text-red-400 bg-red-950/30 px-2 py-0.5 rounded transition-colors"
                       onClick={() => removeMember(index)}
                     >
-                      X
+                      ✕
                     </span>
                   </div>
                   <input
                     type="text"
                     id={`name-${index}`}
                     placeholder="Enter your name"
-                    className="p-2 bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="p-3 bg-zinc-950/80 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all duration-300 placeholder-zinc-500"
                     required
                     value={detail.name}
                     onChange={(e) => handleInputChange(index, 'name', e.target.value)}
@@ -234,7 +235,7 @@ function Form() {
                     type="email"
                     id={`email-${index}`}
                     placeholder="Enter your Email"
-                    className="p-2 bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="p-3 bg-zinc-950/80 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all duration-300 placeholder-zinc-500"
                     required
                     value={detail.email}
                     onChange={(e) => handleInputChange(index, 'email', e.target.value)}
@@ -246,13 +247,14 @@ function Form() {
                 + Add Member
               </span>
               <button
-                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 rounded-md mt-3 transition-all"
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-3 rounded-lg mt-3 transition-all duration-300 shadow-lg hover:shadow-green-600/25 hover:-translate-y-0.5 active:translate-y-0"
                 onClick={handleSubmit}
               >
                 Register
               </button>
             </form>
           </div>
+        </div>
         </div>
       </div>
     </>

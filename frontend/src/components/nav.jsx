@@ -10,8 +10,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -137,8 +144,7 @@ function Nav() {
                 Logout
               </button>
             )}
-          </div>
-        )}
+        </div>
       </nav>
 
       {/* Social Icons (Fixed to Bottom) */}
