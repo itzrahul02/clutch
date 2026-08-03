@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import logo from "../assets/Clutch_logo.png";
+import collegeLogo from "../assets/Logo.png";
+import blackClutch from "../assets/RED_CLUTCH2.png";
+import background from "../assets/background4.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { faInstagram, faYoutube } from "@fortawesome/free-brands-svg-icons";
@@ -19,7 +22,8 @@ function Nav() {
     <div>
       {/* Navbar */}
       <nav
-        className="z-50 w-full border-b border-white/10 bg-zinc-950/95 px-4 py-3 text-white font-medium shadow-md backdrop-blur fixed top-0 left-0 right-0 md:px-6"
+        className="z-50 w-full border-b border-red-900/40 px-4 py-2 text-white font-medium shadow-md fixed top-0 left-0 right-0 md:px-6"
+        style={{ backgroundImage: `linear-gradient(rgba(0,0,0,.72),rgba(0,0,0,.72)), url(${background})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
       >
         <div className="flex justify-between items-center max-w-7xl mx-auto">
           {/* Left Logo Section */}
@@ -31,7 +35,7 @@ function Nav() {
               className="h-11 w-11 rounded-full border-2 border-red-800 md:h-14 md:w-14"
             />
             </Link>
-            <span className="text-lg font-black tracking-[.18em] text-white md:text-xl">CLUTCH</span>
+            <img src={blackClutch} alt="Clutch" className="h-7 w-auto md:h-9" />
           </div>
 
           {/* Desktop Menu */}
@@ -54,7 +58,7 @@ function Nav() {
 
           </div>
 
-          <div className="hidden text-xs font-bold uppercase tracking-[.18em] text-zinc-500 xl:block">IIIT Kota Esports</div>
+          <a href="https://iiitkota.ac.in/" target="_blank" rel="noreferrer" className="hidden xl:block"><img src={collegeLogo} alt="IIIT Kota" className="h-11 w-11 rounded-full border border-red-800" /></a>
 
           {/* Mobile Menu Button */}
           <div className="lg:hidden">
