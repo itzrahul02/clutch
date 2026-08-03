@@ -57,6 +57,7 @@ const playerRouter = require('./routes/playersRouter');
 const authRouter = require('./routes/authRouter');
 const tournamentRouter = require('./routes/tournamentRouter');
 const platformRouter = require('./routes/platformRouter');
+const paymentRouter = require('./routes/paymentRouter');
 
 app.get('/',(req,res)=>{
     res.json({
@@ -86,6 +87,7 @@ app.use('/api/team', teamRouter);
 app.use('/api/player', playerRouter);
 app.use('/api/tournaments', tournamentRouter);
 app.use('/api/platform', platformRouter);
+app.use('/api/payments', paymentRouter);
 app.use('/api/v1/auth', authLimiter, authRouter);
 app.use('/api/v1/games', gamesRouter);
 app.use('/api/v1/team', teamRouter);
