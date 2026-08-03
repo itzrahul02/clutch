@@ -67,7 +67,9 @@ const tournamentRouter = require('./routes/tournamentRouter');
 const platformRouter = require('./routes/platformRouter');
 const paymentRouter = require('./routes/paymentRouter');
 
-app.get('/', (req, res) => {
+// Keep server diagnostics under the API namespace. The site root is reserved for
+// the React application in production (including Vercel deployments).
+app.get('/api/status', (req, res) => {
   res.json({
     message: `Backend is running on port: ${PORT}`,
   });
