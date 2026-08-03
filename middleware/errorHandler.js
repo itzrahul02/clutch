@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const AppError = require("../utils/appError");
-const logger = require("../utils/logger");
+const mongoose = require('mongoose');
+const AppError = require('../utils/appError');
+const logger = require('../utils/logger');
 
 const notFoundHandler = (req, _res, next) => {
   next(new AppError(`Route not found: ${req.originalUrl}`, 404));
@@ -8,7 +8,7 @@ const notFoundHandler = (req, _res, next) => {
 
 const errorHandler = (err, req, res, _next) => {
   let statusCode = err.statusCode || 500;
-  let message = err.message || "Internal Server Error";
+  let message = err.message || 'Internal Server Error';
 
   if (err instanceof mongoose.Error.ValidationError) {
     statusCode = 400;
@@ -17,7 +17,7 @@ const errorHandler = (err, req, res, _next) => {
 
   if (err.code === 11000) {
     statusCode = 409;
-    const duplicateFields = Object.keys(err.keyPattern || {}).join(", ");
+    const duplicateFields = Object.keys(err.keyPattern || {}).join(', ');
     message = `Duplicate value for field(s): ${duplicateFields}`;
   }
 
@@ -28,7 +28,7 @@ const errorHandler = (err, req, res, _next) => {
       url: req.originalUrl,
       statusCode,
     },
-    message
+    message,
   );
 
   res.status(statusCode).json({

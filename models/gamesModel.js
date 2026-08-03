@@ -1,32 +1,38 @@
 const mongoose = require('mongoose');
 
-const gameSchema = new mongoose.Schema({
+const gameSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: true,
-        trim: true,
-        unique: true,
-        minlength: 2,
-        maxlength: 100,
+      type: String,
+      required: true,
+      trim: true,
+      unique: true,
+      minlength: 2,
+      maxlength: 100,
     },
     rules: {
-        type: [String],
-        default: [],
+      type: [String],
+      default: [],
     },
     minPlayers: {
-        type: Number,
-        required: true,
-        min: 1,
+      type: Number,
+      required: true,
+      min: 1,
     },
     maxPlayers: {
-        type: Number,
-        required: true,
-        min: 1,
+      type: Number,
+      required: true,
+      min: 1,
     },
     img: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
-}, { timestamps: true });
+  },
+  { timestamps: true },
+);
+
+// Supports the default, newest-first games listing.
+gameSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('games', gameSchema);

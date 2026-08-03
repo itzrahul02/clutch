@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
-import image1 from "../assets/g1.png";
-import image2 from "../assets/g2.jpg";
-import image4 from "../assets/g4.png";
-import image11 from "../assets/g11.png";
-import image12 from "../assets/g12.jpg";
-import image14 from "../assets/g14.png";
-import Nav from "./nav";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
-import wallpaper from "../assets/wp3.jpg";
-import { Register } from "./Registration";
-import "./Home.css";
+import React, { useEffect, useState } from 'react';
+import image1 from '../assets/g1.png';
+import image2 from '../assets/g2.jpg';
+import image4 from '../assets/g4.png';
+import image11 from '../assets/g11.png';
+import image12 from '../assets/g12.jpg';
+import image14 from '../assets/g14.png';
+import Nav from './nav';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import wallpaper from '../assets/wp3.jpg';
+import { Register } from './Registration';
+import './Home.css';
 
 function Home() {
   const images = [image1, image4, image2, image11, image12, image14];
@@ -39,14 +39,14 @@ function Home() {
 
   return (
     <>
-      <Nav/>
+      <Nav />
       <div
         className="mt-14 md:mt-16 bg-black min-h-[50vh] md:min-h-screen md:py-[5rem] relative flex items-center"
         style={{
           backgroundImage: `url(${wallpaper})`,
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center",
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90" />

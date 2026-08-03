@@ -33,17 +33,19 @@ const authenticate = asyncHandler(async (req, _res, next) => {
   next();
 });
 
-const authorize = (...allowedRoles) => (req, _res, next) => {
-  if (!req.user) {
-    return next(new AppError('Unauthorized', 401));
-  }
+const authorize =
+  (...allowedRoles) =>
+  (req, _res, next) => {
+    if (!req.user) {
+      return next(new AppError('Unauthorized', 401));
+    }
 
-  if (!allowedRoles.includes(req.user.role)) {
-    return next(new AppError('Forbidden: insufficient role', 403));
-  }
+    if (!allowedRoles.includes(req.user.role)) {
+      return next(new AppError('Forbidden: insufficient role', 403));
+    }
 
-  return next();
-};
+    return next();
+  };
 
 module.exports = {
   authenticate,

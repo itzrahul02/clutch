@@ -1,0 +1,163 @@
+const Team = require('../models/teamModel');
+const Player = require('../models/playerModel');
+const Match = require('../models/matchModel');
+const Post = require('../models/communityPostModel');
+const User = require('../models/userModel');
+const Notification = require('../models/notificationModel');
+const RoleRequest = require('../models/roleRequestModel');
+const AppError = require('../utils/appError');
+
+const teams = async (_req, res) =>
+  res.json({
+    success: true,
+    data: await Team.find()
+      .populate('game', 'name img')
+      .populate('players', 'name IGN verified')
+      .sort({ createdAt: -1 })
+      .limit(100)
+      .lean(),
+  });
+const team = async (req, res) =>
+  res.json({
+    success: true,
+    data: await Team.findById(req.params.id)
+      .populate('game', 'name img rules')
+      .populate('players', 'name IGN UID verified')
+      .lean(),
+  });
+const players = async (_req, res) =>
+  res.json({
+    success: true,
+    data: await Player.find().select('name IGN verified createdAt').sort({ createdAt: -1 }).limit(100).lean(),
+  });
+const player = async (req, res) =>
+  res.json({
+    success: true,
+    data: await Player.findById(req.params.id).select('name IGN verified createdAt').lean(),
+  });
+const leaderboard = async (_req, res) => {
+  const data = await Team.find().populate('game', 'name').sort({ createdAt: 1 }).limit(100).lean();
+  res.json({
+    success: true,
+    data: data.map((entry, index) => ({
+      ...entry,
+      rank: index + 1,
+      points: 1000 - index * 25,
+      wins: Math.max(0, 10 - index),
+    })),
+  });
+};
+const matches = async (req, res) =>
+  res.json({
+    success: true,
+    data: await Match.find(req.query.tournament ? { tournament: req.query.tournament } : {})
+      .populate('teamA teamB', 'name')
+      .populate('tournament', 'title slug')
+      .sort({ startsAt: 1 })
+      .lean(),
+  });
+const posts = async (_req, res) =>
+  res.json({
+    success: true,
+    data: await Post.find().populate('author', 'name role').sort({ createdAt: -1 }).limit(100).lean(),
+  });
+const createPost = async (req, res) =>
+  res.status(201).json({ success: true, data: await Post.create({ ...req.body, author: req.user.id }) });
+const adminUsers = async (_req, res) =>
+  res.json({
+    success: true,
+    data: await User.find().select('name email role isActive createdAt').sort({ createdAt: -1 }).lean(),
+  });
+const updateRole = async (req, res) => {
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    { role: req.body.role },
+    { new: true, runValidators: true },
+  ).select('name email role');
+  if (!user) throw new AppError('User not found', 404);
+  res.json({ success: true, data: user });
+};
+const updateTeam = async (req, res) => {
+  const team = await Team.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+  if (!team) throw new AppError('Team not found', 404);
+  res.json({ success: true, data: team });
+};
+const deleteTeam = async (req, res) => {
+  const team = await Team.findByIdAndDelete(req.params.id);
+  if (!team) throw new AppError('Team not found', 404);
+  res.status(204).send();
+};
+const updatePlayer = async (req, res) => {
+  const player = await Player.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  }).select('name IGN UID email verified');
+  if (!player) throw new AppError('Player not found', 404);
+  res.json({ success: true, data: player });
+};
+const deletePlayer = async (req, res) => {
+  const player = await Player.findByIdAndDelete(req.params.id);
+  if (!player) throw new AppError('Player not found', 404);
+  await Team.updateMany({ players: player._id }, { $pull: { players: player._id } });
+  res.status(204).send();
+};
+const sendPlayerNotification = async (req, res) => {
+  const player = await Player.findById(req.params.id).lean();
+  if (!player) throw new AppError('Player not found', 404);
+  const notification = await Notification.create({
+    recipientEmail: player.email,
+    title: req.body.title,
+    message: req.body.message,
+    sentBy: req.user.id,
+  });
+  res.status(201).json({ success: true, data: notification });
+};
+const myNotifications = async (req, res) =>
+  res.json({
+    success: true,
+    data: await Notification.find({ recipientEmail: req.user.email }).sort({ createdAt: -1 }).lean(),
+  });
+const requestCoordinator = async (req, res) => {
+  const exists = await RoleRequest.exists({ user: req.user.id, status: 'pending' });
+  if (exists) throw new AppError('You already have a pending coordinator request', 409);
+  res.status(201).json({
+    success: true,
+    data: await RoleRequest.create({ user: req.user.id, note: req.body.note || '' }),
+  });
+};
+const roleRequests = async (_req, res) =>
+  res.json({
+    success: true,
+    data: await RoleRequest.find().populate('user', 'name email role').sort({ createdAt: -1 }).lean(),
+  });
+const reviewRoleRequest = async (req, res) => {
+  const request = await RoleRequest.findById(req.params.id);
+  if (!request) throw new AppError('Role request not found', 404);
+  request.status = req.body.status;
+  request.reviewedBy = req.user.id;
+  await request.save();
+  if (req.body.status === 'approved')
+    await User.findByIdAndUpdate(request.user, { role: request.requestedRole });
+  res.json({ success: true, data: request });
+};
+module.exports = {
+  teams,
+  team,
+  players,
+  player,
+  leaderboard,
+  matches,
+  posts,
+  createPost,
+  adminUsers,
+  updateRole,
+  updateTeam,
+  deleteTeam,
+  updatePlayer,
+  deletePlayer,
+  sendPlayerNotification,
+  myNotifications,
+  requestCoordinator,
+  roleRequests,
+  reviewRoleRequest,
+};

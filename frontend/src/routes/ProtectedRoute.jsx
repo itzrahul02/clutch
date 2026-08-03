@@ -7,7 +7,11 @@ export default function ProtectedRoute({ children, roles = [] }) {
   const location = useLocation();
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-white bg-black">Checking session...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white bg-black">
+        Checking session...
+      </div>
+    );
   }
 
   if (!isAuthenticated) {

@@ -1,0 +1,410 @@
+import React, { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import client from '../api/client';
+import Nav from '../components/nav';
+import SiteFooter from '../components/SiteFooter';
+import { useAuth } from '../context/AuthContext';
+
+const Page = ({ kicker, title, children }) => (
+  <div className="min-h-screen bg-zinc-950 text-white">
+    <Nav />
+    <main className="mx-auto max-w-7xl px-6 pb-20 pt-32">
+      <p className="section-kicker">{kicker}</p>
+      <h1 className="section-title">{title}</h1>
+      {children}
+    </main>
+    <SiteFooter />
+  </div>
+);
+const useData = (path) => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    client
+      .get(path)
+      .then((r) => setData(r.data?.data || []))
+      .catch(() => setData([]))
+      .finally(() => setLoading(false));
+  }, [path]);
+  return { data, loading, setData };
+};
+const Empty = ({ text }) => (
+  <div className="mt-8 rounded-xl border border-dashed border-zinc-700 p-10 text-center text-zinc-400">
+    {text}
+  </div>
+);
+
+export function Games() {
+  const { data, loading } = useData('/api/games?limit=100');
+  return (
+    <Page kicker="Game library" title="Choose your battlefield.">
+      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {data.map((game) => (
+          <Link
+            key={game._id}
+            to={`/form?game=${game.name}`}
+            className="group overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 hover:border-red-500"
+          >
+            <img
+              src={game.img}
+              alt=""
+              className="h-44 w-full object-cover transition group-hover:scale-105"
+            />
+            <div className="p-5">
+              <h2 className="text-xl font-bold">{game.name}</h2>
+              <p className="mt-2 text-sm text-zinc-400">
+                {game.minPlayers}–{game.maxPlayers} players per team
+              </p>
+              <p className="mt-4 text-sm font-bold text-red-400">Register team →</p>
+            </div>
+          </Link>
+        ))}
+      </div>
+      {!loading && !data.length ? (
+        <Empty text="Games will appear here when organizers publish them." />
+      ) : null}
+    </Page>
+  );
+}
+
+export function Teams() {
+  const { data, loading } = useData('/api/platform/teams');
+  return (
+    <Page kicker="Team directory" title="Find your squad.">
+      <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {data.map((team) => (
+          <Link
+            key={team._id}
+            to={`/teams/${team._id}`}
+            className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 hover:border-red-500"
+          >
+            <p className="text-sm text-red-400">{team.game?.name}</p>
+            <h2 className="mt-2 text-2xl font-bold">{team.name}</h2>
+            <p className="mt-5 text-sm text-zinc-400">{team.players?.length || 0} registered players</p>
+          </Link>
+        ))}
+      </div>
+      {!loading && !data.length ? <Empty text="No teams registered yet." /> : null}
+    </Page>
+  );
+}
+
+export function TeamProfile() {
+  const { id } = useParams();
+  const { data: team, loading } = useData(`/api/platform/teams/${id}`);
+  if (loading) return <Page kicker="Team profile" title="Loading team…" />;
+  return (
+    <Page kicker="Team profile" title={team?.name || 'Team not found'}>
+      <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_.7fr]">
+        <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-7">
+          <p className="text-red-400">{team?.game?.name}</p>
+          <h2 className="mt-3 text-2xl font-bold">Roster</h2>
+          <div className="mt-5 space-y-3">
+            {team?.players?.map((player) => (
+              <Link
+                to={`/players/${player._id}`}
+                key={player._id}
+                className="flex items-center justify-between rounded-lg bg-zinc-950 p-4 hover:bg-zinc-800"
+              >
+                <span>{player.IGN || player.name}</span>
+                <span className={player.verified ? 'text-emerald-400 text-sm' : 'text-amber-400 text-sm'}>
+                  {player.verified ? 'Verified' : 'Pending'}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+        <aside className="rounded-xl border border-zinc-800 bg-zinc-900 p-7">
+          <h2 className="text-xl font-bold">Team status</h2>
+          <p className="mt-3 text-zinc-400">
+            Registered for {team?.game?.name || 'this game'}. Tournament entries will appear here as events
+            are joined.
+          </p>
+        </aside>
+      </div>
+    </Page>
+  );
+}
+
+export function Players() {
+  const { data, loading } = useData('/api/platform/players');
+  return (
+    <Page kicker="Player directory" title="Meet the competitors.">
+      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {data.map((player) => (
+          <Link
+            key={player._id}
+            to={`/players/${player._id}`}
+            className="rounded-xl border border-zinc-800 bg-zinc-900 p-5 hover:border-red-500"
+          >
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-red-600 font-bold">
+              {(player.IGN || player.name).slice(0, 1).toUpperCase()}
+            </div>
+            <h2 className="mt-4 font-bold">{player.IGN || player.name}</h2>
+            <p className="mt-1 text-sm text-zinc-400">
+              {player.verified ? 'Verified competitor' : 'Verification pending'}
+            </p>
+          </Link>
+        ))}
+      </div>
+      {!loading && !data.length ? <Empty text="Players appear here after team registration." /> : null}
+    </Page>
+  );
+}
+
+export function PlayerProfile() {
+  const { id } = useParams();
+  const { data: player, loading } = useData(`/api/platform/players/${id}`);
+  return (
+    <Page
+      kicker="Player profile"
+      title={loading ? 'Loading player…' : player?.IGN || player?.name || 'Player not found'}
+    >
+      <div className="mt-10 max-w-2xl rounded-xl border border-zinc-800 bg-zinc-900 p-8">
+        <p className="text-zinc-400">Clutch competitor profile</p>
+        <div className="mt-6 grid grid-cols-3 gap-4">
+          <Metric label="Status" value={player?.verified ? 'Verified' : 'Pending'} />
+          <Metric label="Matches" value="—" />
+          <Metric label="Wins" value="—" />
+        </div>
+        <p className="mt-8 text-sm text-zinc-500">
+          Match history and achievement tracking are ready to populate as results are recorded.
+        </p>
+      </div>
+    </Page>
+  );
+}
+
+export function Leaderboard() {
+  const { data, loading } = useData('/api/platform/leaderboard');
+  return (
+    <Page kicker="Rankings" title="The climb to the top.">
+      <div className="mt-10 overflow-hidden rounded-xl border border-zinc-800">
+        <div className="grid grid-cols-[60px_1fr_100px_80px] bg-zinc-900 p-4 text-xs font-bold uppercase tracking-wider text-zinc-400">
+          <span>#</span>
+          <span>Team</span>
+          <span>Wins</span>
+          <span>Points</span>
+        </div>
+        {data.map((team) => (
+          <Link
+            to={`/teams/${team._id}`}
+            key={team._id}
+            className="grid grid-cols-[60px_1fr_100px_80px] border-t border-zinc-800 p-4 hover:bg-zinc-900"
+          >
+            <span className="font-bold text-red-400">{team.rank}</span>
+            <span>
+              {team.name}
+              <small className="ml-2 text-zinc-500">{team.game?.name}</small>
+            </span>
+            <span>{team.wins}</span>
+            <span className="font-bold">{team.points}</span>
+          </Link>
+        ))}
+      </div>
+      {!loading && !data.length ? (
+        <Empty text="Rankings will populate when teams enter the platform." />
+      ) : null}
+    </Page>
+  );
+}
+
+export function Community() {
+  const { user } = useAuth();
+  const { data, loading, setData } = useData('/api/platform/community');
+  const [form, setForm] = useState({ title: '', body: '', tag: 'discussion' });
+  const submit = async (e) => {
+    e.preventDefault();
+    const response = await client.post('/api/platform/community', form);
+    setData([{ ...response.data.data, author: user }, ...data]);
+    setForm({ title: '', body: '', tag: 'discussion' });
+  };
+  return (
+    <Page kicker="Community" title="Beyond the bracket.">
+      {user ? (
+        <form onSubmit={submit} className="mt-10 rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          <input
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            required
+            placeholder="Start a conversation"
+            className="w-full bg-transparent text-lg font-bold outline-none"
+          />
+          <textarea
+            value={form.body}
+            onChange={(e) => setForm({ ...form, body: e.target.value })}
+            required
+            placeholder="Find teammates, share an update, or talk strategy…"
+            className="mt-4 min-h-24 w-full bg-zinc-950 p-3 outline-none"
+          />
+          <div className="mt-3 flex justify-between">
+            <select
+              value={form.tag}
+              onChange={(e) => setForm({ ...form, tag: e.target.value })}
+              className="bg-zinc-950 p-2"
+            >
+              <option value="discussion">Discussion</option>
+              <option value="recruitment">Recruitment</option>
+              <option value="announcement">Announcement</option>
+            </select>
+            <button className="rounded bg-red-600 px-4 font-bold">Post</button>
+          </div>
+        </form>
+      ) : (
+        <p className="mt-8 text-zinc-400">
+          <Link to="/login" className="text-red-400">
+            Sign in
+          </Link>{' '}
+          to post in the community.
+        </p>
+      )}
+      <div className="mt-8 space-y-4">
+        {data.map((post) => (
+          <article key={post._id} className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
+            <p className="text-xs font-bold uppercase tracking-widest text-red-400">{post.tag}</p>
+            <h2 className="mt-2 text-xl font-bold">{post.title}</h2>
+            <p className="mt-3 whitespace-pre-line text-zinc-300">{post.body}</p>
+            <p className="mt-4 text-xs text-zinc-500">Posted by {post.author?.name || 'Clutch member'}</p>
+          </article>
+        ))}
+      </div>
+      {!loading && !data.length ? <Empty text="The community is waiting for its first post." /> : null}
+    </Page>
+  );
+}
+
+export function Dashboard() {
+  const { user } = useAuth();
+  const { data: teams, loading: teamsLoading } = useData('/api/platform/teams');
+  const { data: tournaments } = useData('/api/tournaments?status=upcoming');
+  const { data: matches } = useData('/api/platform/matches');
+  const quickActions = [
+    ['Register a team', '/games', 'Pick a game and create your squad.'],
+    ['Explore tournaments', '/tournaments', 'Find your next competition.'],
+    ['Community', '/community', 'Recruit players or talk strategy.'],
+    ['Request coordinator', '/request-coordinator', 'Apply to help run Clutch events.'],
+  ];
+  return (
+    <Page kicker="My dashboard" title={`Welcome back, ${user?.name || 'player'}.`}>
+      <p className="mt-4 max-w-2xl text-zinc-400">
+        Your Clutch command centre for teams, events, matches, and updates.
+      </p>
+      <div className="mt-10 grid gap-5 md:grid-cols-3">
+        <Metric label="Account role" value={user?.role || 'player'} />
+        <Metric label="Teams on platform" value={teamsLoading ? '…' : teams.length} />
+        <Metric label="Upcoming events" value={tournaments.length} />
+      </div>
+      <div className="mt-8 grid gap-8 lg:grid-cols-[1.3fr_.7fr]">
+        <section>
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">Quick actions</h2>
+            <Link to="/tournaments" className="text-sm text-red-400">
+              View all events →
+            </Link>
+          </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            {quickActions.map(([name, to, description]) => (
+              <Link
+                key={name}
+                to={to}
+                className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 transition hover:-translate-y-1 hover:border-red-500"
+              >
+                <p className="text-xs font-bold uppercase tracking-widest text-red-400">Dashboard</p>
+                <h3 className="mt-3 text-xl font-bold">{name}</h3>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">{description}</p>
+                <p className="mt-5 text-sm font-bold">Open →</p>
+              </Link>
+            ))}
+          </div>
+          <h2 className="mt-10 text-2xl font-bold">Upcoming tournaments</h2>
+          {tournaments.length ? (
+            <div className="mt-4 space-y-3">
+              {tournaments.slice(0, 3).map((event) => (
+                <Link
+                  to={`/tournaments/${event.slug}`}
+                  key={event._id}
+                  className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900 p-5 hover:border-red-500"
+                >
+                  <div>
+                    <p className="text-sm text-red-400">{event.game?.name || 'Tournament'}</p>
+                    <h3 className="mt-1 font-bold">{event.title}</h3>
+                  </div>
+                  <span className="text-sm text-zinc-400">
+                    {new Date(event.startsAt).toLocaleDateString()}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <Empty text="No upcoming tournaments yet. Check back after an organizer publishes an event." />
+          )}
+        </section>
+        <aside className="space-y-6">
+          <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
+            <p className="text-xs font-bold uppercase tracking-widest text-red-400">Your profile</p>
+            <h2 className="mt-3 text-xl font-bold">{user?.name}</h2>
+            <p className="mt-1 text-sm text-zinc-400">{user?.email}</p>
+            <div className="mt-5 rounded-lg bg-zinc-950 p-4 text-sm">
+              <span className="text-zinc-500">Role</span>
+              <span className="float-right capitalize">{user?.role}</span>
+            </div>
+          </section>
+          <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
+            <p className="text-xs font-bold uppercase tracking-widest text-red-400">Notifications</p>
+            {matches.length ? (
+              <div className="mt-4 space-y-3 text-sm text-zinc-300">
+                {matches.slice(0, 3).map((match) => (
+                  <p key={match._id} className="rounded-lg bg-zinc-950 p-3">
+                    {match.teamA?.name || 'TBD'} vs {match.teamB?.name || 'TBD'} · {match.status}
+                  </p>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-4 text-sm leading-6 text-zinc-400">
+                You’re all caught up. Match assignments and organizer announcements will appear here.
+              </p>
+            )}
+            <Link to="/community" className="mt-5 inline-block text-sm font-bold text-red-400">
+              Open community →
+            </Link>
+          </section>
+        </aside>
+      </div>
+    </Page>
+  );
+}
+
+export function Organizer() {
+  const areas = [
+    ['Tournaments', '/admin/tournaments'],
+    ['Games', '/admin/games'],
+    ['Teams & players', '/admin/people'],
+    ['Results', '/tournaments'],
+    ['Analytics', '/leaderboard'],
+  ];
+  return (
+    <Page kicker="Organizer workspace" title="Run a better tournament.">
+      <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {areas.map(([name, to]) => (
+          <Link
+            key={name}
+            to={to}
+            className="rounded-xl border border-zinc-800 bg-zinc-900 p-7 hover:border-red-500"
+          >
+            <p className="text-xs font-bold uppercase tracking-widest text-red-400">Organizer</p>
+            <h2 className="mt-3 text-2xl font-bold">{name}</h2>
+            <p className="mt-5 text-zinc-400">Manage this part of the event platform.</p>
+          </Link>
+        ))}
+      </div>
+    </Page>
+  );
+}
+function Metric({ label, value }) {
+  return (
+    <div className="rounded-lg bg-zinc-950 p-4">
+      <p className="text-xs text-zinc-500">{label}</p>
+      <p className="mt-1 font-bold">{value}</p>
+    </div>
+  );
+}

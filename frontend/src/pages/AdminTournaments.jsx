@@ -1,0 +1,163 @@
+import React, { useEffect, useState } from 'react';
+import client from '../api/client';
+import Nav from '../components/nav';
+
+const initialForm = {
+  title: '',
+  gameId: '',
+  description: '',
+  format: 'single-elimination',
+  startsAt: '',
+  registrationClosesAt: '',
+  maxTeams: 16,
+  prizePool: 0,
+  entryFee: 0,
+  bannerUrl: '',
+  rules: '',
+};
+
+export default function AdminTournaments() {
+  const [form, setForm] = useState(initialForm);
+  const [games, setGames] = useState([]);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  useEffect(() => {
+    client
+      .get('/api/games', { params: { limit: 100 } })
+      .then((response) => setGames(response.data?.data || []));
+  }, []);
+  const submit = async (event) => {
+    event.preventDefault();
+    setError('');
+    setMessage('');
+    try {
+      await client.post('/api/tournaments', {
+        ...form,
+        rules: form.rules
+          .split('\n')
+          .map((rule) => rule.trim())
+          .filter(Boolean),
+      });
+      setMessage('Tournament published.');
+      setForm(initialForm);
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Could not create tournament.');
+    }
+  };
+  return (
+    <div className="min-h-screen bg-zinc-950 text-white">
+      <Nav />
+      <main className="mx-auto max-w-3xl px-6 pb-16 pt-32">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-red-500">Organizer workspace</p>
+        <h1 className="mt-3 text-4xl font-bold">Create a tournament</h1>
+        <form onSubmit={submit} className="mt-8 space-y-5 rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
+          <Field
+            label="Tournament title"
+            value={form.title}
+            onChange={(title) => setForm({ ...form, title })}
+            required
+          />
+          <label className="block text-sm font-medium">
+            Game
+            <select
+              value={form.gameId}
+              onChange={(e) => setForm({ ...form, gameId: e.target.value })}
+              required
+              className="mt-2 w-full rounded-lg border border-zinc-700 bg-zinc-950 p-3"
+            >
+              <option value="">Select a game</option>
+              {games.map((game) => (
+                <option key={game._id} value={game._id}>
+                  {game.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block text-sm font-medium">
+            Description
+            <textarea
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              required
+              minLength="20"
+              className="mt-2 min-h-28 w-full rounded-lg border border-zinc-700 bg-zinc-950 p-3"
+            />
+          </label>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field
+              label="Starts at"
+              type="datetime-local"
+              value={form.startsAt}
+              onChange={(startsAt) => setForm({ ...form, startsAt })}
+              required
+            />
+            <Field
+              label="Registration closes"
+              type="datetime-local"
+              value={form.registrationClosesAt}
+              onChange={(registrationClosesAt) => setForm({ ...form, registrationClosesAt })}
+              required
+            />
+            <Field
+              label="Maximum teams"
+              type="number"
+              value={form.maxTeams}
+              onChange={(maxTeams) => setForm({ ...form, maxTeams: Number(maxTeams) })}
+              required
+            />
+            <Field
+              label="Prize pool (₹)"
+              type="number"
+              value={form.prizePool}
+              onChange={(prizePool) => setForm({ ...form, prizePool: Number(prizePool) })}
+              required
+            />
+          </div>
+          <label className="block text-sm font-medium">
+            Format
+            <select
+              value={form.format}
+              onChange={(e) => setForm({ ...form, format: e.target.value })}
+              className="mt-2 w-full rounded-lg border border-zinc-700 bg-zinc-950 p-3"
+            >
+              <option value="single-elimination">Single elimination</option>
+              <option value="round-robin">Round robin</option>
+            </select>
+          </label>
+          <Field
+            label="Banner image URL (optional)"
+            value={form.bannerUrl}
+            onChange={(bannerUrl) => setForm({ ...form, bannerUrl })}
+          />
+          <label className="block text-sm font-medium">
+            Rules (one per line)
+            <textarea
+              value={form.rules}
+              onChange={(e) => setForm({ ...form, rules: e.target.value })}
+              className="mt-2 min-h-28 w-full rounded-lg border border-zinc-700 bg-zinc-950 p-3"
+            />
+          </label>
+          {message ? <p className="text-green-400">{message}</p> : null}
+          {error ? <p className="text-red-300">{error}</p> : null}
+          <button className="w-full rounded-lg bg-red-600 p-3 font-semibold hover:bg-red-500">
+            Publish tournament
+          </button>
+        </form>
+      </main>
+    </div>
+  );
+}
+function Field({ label, type = 'text', value, onChange, required = false }) {
+  return (
+    <label className="block text-sm font-medium">
+      {label}
+      <input
+        type={type}
+        value={value}
+        required={required}
+        onChange={(e) => onChange(e.target.value)}
+        className="mt-2 w-full rounded-lg border border-zinc-700 bg-zinc-950 p-3"
+      />
+    </label>
+  );
+}

@@ -43,6 +43,8 @@ const { authenticate, authorize } = require('../middleware/auth.middleware');
  *     responses:
  *       200:
  *         description: Paginated game list
+ *       400:
+ *         description: Invalid query parameters
  */
 router.get('/', validate(listGamesSchema), asyncHandler(getAllGames));
 
@@ -55,10 +57,38 @@ router.get('/', validate(listGamesSchema), asyncHandler(getAllGames));
  *       - Games
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, minPlayers, maxPlayers, rules, img]
+ *             properties:
+ *               name: { type: string, minLength: 2 }
+ *               minPlayers: { type: integer, minimum: 1 }
+ *               maxPlayers: { type: integer, minimum: 1 }
+ *               rules:
+ *                 type: array
+ *                 minItems: 1
+ *                 items: { type: string }
+ *               img: { type: string }
  *     responses:
  *       201:
  *         description: Game created successfully
+ *       401:
+ *         description: Authentication required
+ *       403:
+ *         description: Admin or coordinator role required
+ *       409:
+ *         description: Game already exists
  */
-router.post('/add', authenticate, authorize('admin', 'coordinator'), validate(addGameSchema), asyncHandler(addGame));
+router.post(
+  '/add',
+  authenticate,
+  authorize('admin', 'coordinator'),
+  validate(addGameSchema),
+  asyncHandler(addGame),
+);
 
 module.exports = router;

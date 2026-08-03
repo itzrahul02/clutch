@@ -4,7 +4,7 @@ services:
     container_name: clutch-mongo
     restart: unless-stopped
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - mongo_data:/data/db
 
@@ -13,7 +13,7 @@ services:
     container_name: clutch-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
   backend:
     build:
@@ -35,7 +35,7 @@ services:
       - mongo
       - redis
     ports:
-      - "1234:1234"
+      - '1234:1234'
 
   worker:
     build:
@@ -43,7 +43,7 @@ services:
       dockerfile: Dockerfile
     container_name: clutch-worker
     restart: unless-stopped
-    command: ["node", "worker.js"]
+    command: ['node', 'worker.js']
     environment:
       MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/clutch}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
@@ -67,7 +67,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "5173:5173"
+      - '5173:5173'
 
 volumes:
   mongo_data:

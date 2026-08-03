@@ -1,0 +1,315 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import client from '../api/client';
+import Nav from '../components/nav';
+
+export default function AdminPeople() {
+  const [teams, setTeams] = useState([]),
+    [users, setUsers] = useState([]),
+    [requests, setRequests] = useState([]),
+    [openTeam, setOpenTeam] = useState(null),
+    [search, setSearch] = useState(''),
+    [sort, setSort] = useState('players'),
+    [editing, setEditing] = useState(null),
+    [form, setForm] = useState({ name: '', IGN: '' }),
+    [message, setMessage] = useState('');
+  const load = () =>
+    Promise.all([
+      client.get('/api/platform/teams'),
+      client.get('/api/platform/admin/users'),
+      client.get('/api/platform/admin/role-requests'),
+    ]).then(([t, u, r]) => {
+      const next = t.data.data || [];
+      setTeams(next);
+      setUsers(u.data.data || []);
+      setRequests(r.data.data || []);
+      setOpenTeam((old) => (old ? next.find((team) => team._id === old._id) || null : null));
+    });
+  useEffect(() => {
+    load();
+  }, []);
+  const list = useMemo(
+    () =>
+      teams
+        .filter((team) => team.name.toLowerCase().includes(search.toLowerCase()))
+        .sort((a, b) =>
+          sort === 'players'
+            ? (b.players?.length || 0) - (a.players?.length || 0)
+            : new Date(b.createdAt) - new Date(a.createdAt),
+        ),
+    [teams, search, sort],
+  );
+  const teamUpdate = async (team) => {
+    const name = window.prompt('Team name', team.name),
+      contact = window.prompt('Contact', team.contact);
+    if (name && contact) {
+      await client.patch(`/api/platform/admin/teams/${team._id}`, { name, contact });
+      setMessage('Team updated.');
+      load();
+    }
+  };
+  const teamDelete = async (team) => {
+    if (window.confirm(`Delete ${team.name}?`)) {
+      await client.delete(`/api/platform/admin/teams/${team._id}`);
+      setMessage('Team deleted.');
+      load();
+    }
+  };
+  const notify = async (player) => {
+    const title = window.prompt('Notification title'),
+      messageText = window.prompt('Message');
+    if (title && messageText) {
+      await client.post(`/api/platform/admin/players/${player._id}/notifications`, {
+        title,
+        message: messageText,
+      });
+      setMessage('Notification sent.');
+    }
+  };
+  const save = async (event) => {
+    event.preventDefault();
+    await client.patch(`/api/platform/admin/players/${editing._id}`, form);
+    setEditing(null);
+    setMessage('Player updated.');
+    load();
+  };
+  const playerDelete = async (player) => {
+    if (window.confirm(`Delete ${player.IGN || player.name}?`)) {
+      await client.delete(`/api/platform/admin/players/${player._id}`);
+      setMessage('Player deleted.');
+      load();
+    }
+  };
+  const role = async (user, value) => {
+    await client.patch(`/api/platform/admin/users/${user._id}/role`, { role: value });
+    load();
+  };
+  const review = async (id, status) => {
+    await client.patch(`/api/platform/admin/role-requests/${id}`, { status });
+    load();
+  };
+  return (
+    <div className="min-h-screen bg-zinc-950 text-white">
+      <Nav />
+      <main className="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 sm:pt-32">
+        <p className="section-kicker">Organizer workspace</p>
+        <h1 className="section-title">Teams & players control centre.</h1>
+        {message && <p className="mt-5 rounded-lg bg-emerald-500/10 p-3 text-emerald-300">{message}</p>}
+        <section className="mt-10">
+          <h2 className="text-2xl font-bold">Coordinator requests</h2>
+          {requests
+            .filter((x) => x.status === 'pending')
+            .map((x) => (
+              <div
+                key={x._id}
+                className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-zinc-800 bg-zinc-900 p-5"
+              >
+                <span>
+                  <b>{x.user?.name}</b>
+                  <small className="ml-2 text-zinc-400">{x.user?.email}</small>
+                </span>
+                <span className="flex gap-2">
+                  <button
+                    onClick={() => review(x._id, 'approved')}
+                    className="rounded bg-emerald-600 px-3 py-2 text-sm font-bold"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => review(x._id, 'rejected')}
+                    className="rounded bg-zinc-700 px-3 py-2 text-sm font-bold"
+                  >
+                    Reject
+                  </button>
+                </span>
+              </div>
+            ))}
+          {!requests.some((x) => x.status === 'pending') && (
+            <p className="mt-3 text-zinc-400">No pending coordinator requests.</p>
+          )}
+        </section>
+        <section className="mt-12">
+          <h2 className="text-2xl font-bold">Account designations</h2>
+          <div className="mt-4 overflow-x-auto rounded-xl border border-zinc-800">
+            <table className="w-full min-w-[600px] text-sm">
+              <tbody>
+                {users.map((u) => (
+                  <tr key={u._id} className="border-b border-zinc-800 last:border-0">
+                    <td className="p-4 font-bold">
+                      {u.name}
+                      <small className="ml-2 text-zinc-500">{u.email}</small>
+                    </td>
+                    <td className="capitalize">{u.role}</td>
+                    <td className="p-3 text-right">
+                      <select
+                        value={u.role}
+                        onChange={(e) => role(u, e.target.value)}
+                        className="rounded bg-zinc-950 p-2"
+                      >
+                        <option value="player">Player</option>
+                        <option value="coordinator">Coordinator</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section className="mt-12">
+          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+            <div>
+              <h2 className="text-2xl font-bold">All teams</h2>
+              <p className="mt-1 text-sm text-zinc-400">Select a team to manage every registered player.</p>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search team name"
+                className="rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3"
+              />
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className="rounded-lg border border-zinc-700 bg-zinc-900 px-3"
+              >
+                <option value="players">Largest roster</option>
+                <option value="created">Newest teams</option>
+              </select>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-3">
+            {list.map((team) => (
+              <article
+                key={team._id}
+                className={`overflow-hidden rounded-2xl border transition ${openTeam?._id === team._id ? 'border-red-500 bg-red-950/20 shadow-[0_0_30px_rgba(220,38,38,.12)]' : 'border-zinc-800 bg-zinc-900 hover:border-zinc-600'}`}
+              >
+                <div className="flex flex-col gap-4 p-5 md:flex-row md:items-center">
+                  <button
+                    onClick={() => setOpenTeam(openTeam?._id === team._id ? null : team)}
+                    className="flex min-w-0 flex-1 items-center gap-4 text-left"
+                  >
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-red-950 text-lg font-black">
+                      {team.name.slice(0, 1).toUpperCase()}
+                    </span>
+                    <span className="min-w-0">
+                      <b className="block truncate text-lg">{team.name}</b>
+                      <small className="mt-1 block text-zinc-400">
+                        {team.game?.name || 'Game not assigned'} · Created{' '}
+                        {new Date(team.createdAt).toLocaleDateString()}
+                      </small>
+                    </span>
+                  </button>
+                  <span className="rounded-full bg-red-500/15 px-3 py-2 text-sm font-bold text-red-200">
+                    {team.players?.length || 0} players
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setOpenTeam(openTeam?._id === team._id ? null : team)}
+                      className="rounded-lg border border-zinc-600 px-3 py-2 text-sm font-bold"
+                    >
+                      {openTeam?._id === team._id ? 'Close' : 'View roster'}
+                    </button>
+                    <button
+                      onClick={() => teamUpdate(team)}
+                      className="rounded-lg bg-blue-700 px-3 py-2 text-sm font-bold"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => teamDelete(team)}
+                      className="rounded-lg bg-red-700 px-3 py-2 text-sm font-bold"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                {openTeam?._id === team._id && (
+                  <div className="border-t border-red-900/40 bg-black/30 p-5">
+                    <p className="mb-4 text-sm text-zinc-400">Registered roster · {team.contact}</p>
+                    {team.players?.map((p, i) => (
+                      <div
+                        key={p._id}
+                        className="mb-3 flex flex-col gap-3 rounded-xl border border-zinc-800 bg-zinc-950 p-4 sm:flex-row sm:items-center sm:justify-between"
+                      >
+                        <span>
+                          <b>
+                            {i + 1}. {p.IGN || p.name}
+                          </b>
+                          <small className="ml-2 text-zinc-500">
+                            {p.verified ? 'Verified' : 'Pending verification'}
+                          </small>
+                        </span>
+                        <span className="flex gap-2">
+                          <button
+                            onClick={() => notify(p)}
+                            className="rounded bg-red-600 px-3 py-2 text-xs font-bold"
+                          >
+                            Notify
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditing(p);
+                              setForm({ name: p.name, IGN: p.IGN || '' });
+                            }}
+                            className="rounded bg-blue-700 px-3 py-2 text-xs font-bold"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => playerDelete(p)}
+                            className="rounded bg-zinc-700 px-3 py-2 text-xs font-bold"
+                          >
+                            Delete
+                          </button>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </article>
+            ))}
+            {!list.length && (
+              <p className="rounded-xl border border-dashed border-zinc-700 p-8 text-center text-zinc-400">
+                No teams found.
+              </p>
+            )}
+          </div>
+        </section>
+      </main>
+      {editing && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 p-4">
+          <form
+            onSubmit={save}
+            className="w-full max-w-md rounded-2xl border border-zinc-700 bg-zinc-900 p-6 shadow-2xl"
+          >
+            <div className="flex justify-between">
+              <h2 className="text-2xl font-bold">Edit player</h2>
+              <button type="button" onClick={() => setEditing(null)}>
+                ×
+              </button>
+            </div>
+            <label className="mt-6 block text-sm font-bold">
+              Full name
+              <input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className="mt-2 w-full rounded-lg bg-zinc-950 p-3"
+              />
+            </label>
+            <label className="mt-5 block text-sm font-bold">
+              In-game name
+              <input
+                value={form.IGN}
+                onChange={(e) => setForm({ ...form, IGN: e.target.value })}
+                className="mt-2 w-full rounded-lg bg-zinc-950 p-3"
+              />
+            </label>
+            <button className="mt-6 w-full rounded bg-red-600 p-3 font-bold">Save changes</button>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,30 +1,37 @@
 const mongoose = require('mongoose');
 
-const teamSchema = new mongoose.Schema({
+const teamSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: true,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 2,
+      maxlength: 100,
     },
     game: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'games',
-        required: true,
+      type: mongoose.Schema.ObjectId,
+      ref: 'games',
+      required: true,
     },
     contact: {
-        type: String,
-        required: true,
-        match: /^\d{8,15}$/,
+      type: String,
+      required: true,
+      match: /^\d{8,15}$/,
     },
-    players: [{
+    players: [
+      {
         type: mongoose.Schema.ObjectId,
         ref: 'players',
         required: true,
-    }]
-}, {timestamps: true});
+      },
+    ],
+  },
+  { timestamps: true },
+);
 
 teamSchema.index({ name: 1, game: 1 }, { unique: true });
+// Supports listing every team registered for one game.
+teamSchema.index({ game: 1 });
 
 module.exports = mongoose.model('teams', teamSchema);

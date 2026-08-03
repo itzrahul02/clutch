@@ -1,4 +1,4 @@
-const { z } = require("zod");
+const { z } = require('zod');
 
 const verifyTokenSchema = z.object({
   body: z.object({}).default({}),

@@ -21,13 +21,21 @@ const PORT = env.PORT;
 
 app.set('trust proxy', 1);
 
+// Swagger UI uses inline bootstrap code. Mount it before Helmet's strict CSP
+// so the docs work without weakening the policy for application endpoints.
+const swaggerUiOptions = { customSiteTitle: 'Clutch API Documentation' };
+app.get('/api/openapi.json', (_req, res) => res.json(swaggerSpec));
+app.get('/api/v1/openapi.json', (_req, res) => res.json(swaggerSpec));
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
+app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
+
 app.use(
-    pinoHttp({
-        logger,
-        customSuccessMessage: function (req, res) {
-            return `${req.method} ${req.url} completed with ${res.statusCode}`;
-        },
-    })
+  pinoHttp({
+    logger,
+    customSuccessMessage: function (req, res) {
+      return `${req.method} ${req.url} completed with ${res.statusCode}`;
+    },
+  }),
 );
 
 app.use(helmet({
@@ -45,14 +53,14 @@ app.use(helmet({
 app.use(compression());
 
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 300,
-    standardHeaders: true,
-    legacyHeaders: false,
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 app.use(limiter);
 
-app.use(express.static('public'))
+app.use(express.static('public'));
 app.use(morgan('dev'));
 
 app.use(express.json());
@@ -76,56 +84,61 @@ const gamesRouter = require('./routes/gamesRouter');
 const teamRouter = require('./routes/teamRouter');
 const playerRouter = require('./routes/playersRouter');
 const authRouter = require('./routes/authRouter');
+const tournamentRouter = require('./routes/tournamentRouter');
+const platformRouter = require('./routes/platformRouter');
+const paymentRouter = require('./routes/paymentRouter');
 
-app.get('/api/status',(req,res)=>{
-    res.json({
-        message:`Backend is running on port: ${PORT}`
-    })
-})
-
-app.get('/healthz', (_req, res) => {
-    res.status(200).json({
-        status: 'ok',
-        uptime: process.uptime(),
-        timestamp: new Date().toISOString(),
-    });
+app.get('/', (req, res) => {
+  res.json({
+    message: `Backend is running on port: ${PORT}`,
+  });
 });
 
-app.set('view engine','ejs');
+app.get('/healthz', (_req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.set('view engine', 'ejs');
 const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 50,
-    standardHeaders: true,
-    legacyHeaders: false,
+  windowMs: 15 * 60 * 1000,
+  max: 50,
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 app.use('/api/auth', authLimiter, authRouter);
 app.use('/api/games', gamesRouter);
 app.use('/api/team', teamRouter);
 app.use('/api/player', playerRouter);
+app.use('/api/tournaments', tournamentRouter);
+app.use('/api/platform', platformRouter);
+app.use('/api/payments', paymentRouter);
 app.use('/api/v1/auth', authLimiter, authRouter);
 app.use('/api/v1/games', gamesRouter);
 app.use('/api/v1/team', teamRouter);
 app.use('/api/v1/player', playerRouter);
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
 app.use(express.static(path.join(__dirname, 'frontend/dist')));
 app.use('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/dist', 'index.html'));
+  res.sendFile(path.join(__dirname, 'frontend/dist', 'index.html'));
 });
 
 app.use(notFoundHandler);
 app.use(errorHandler);
 
 if (require.main === module) {
-    dbConnect().then(() => {
-        app.listen(PORT, () => {
-            logger.info(`Backend is running on port ${PORT}`);
-        });
-    }).catch((err) => {
-        logger.error({ err }, 'Failed to connect to database during startup');
-        process.exit(1);
+  dbConnect()
+    .then(() => {
+      app.listen(PORT, () => {
+        logger.info(`Backend is running on port ${PORT}`);
+      });
+    })
+    .catch((err) => {
+      logger.error({ err }, 'Failed to connect to database during startup');
+      process.exit(1);
     });
 }
 

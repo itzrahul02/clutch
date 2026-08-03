@@ -118,15 +118,9 @@ export default function AdminGames() {
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 transition-all duration-300 p-3 sm:p-3.5 font-semibold text-lg shadow-lg hover:shadow-red-600/25 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={loading}
+            className="w-full rounded-md bg-red-600 hover:bg-red-500 transition p-3 font-semibold"
           >
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                Saving...
-              </span>
-            ) : 'Save game'}
+            Save game
           </button>
         </form>
       </div>
