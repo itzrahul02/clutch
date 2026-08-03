@@ -44,13 +44,16 @@ function Nav() {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex gap-8 text-lg">
-            <a href="#" className="hover:text-red-600">Home</a>
+          <div className="hidden lg:flex gap-5 text-sm">
+            <Link to="/" className="hover:text-red-600">Home</Link>
  
             <Link to="/tournaments" className="hover:text-red-600">Tournaments</Link>
-            <a href="#games" className="hover:text-red-600">Register</a>
+            <Link to="/games" className="hover:text-red-600">Games</Link>
+            <Link to="/leaderboard" className="hover:text-red-600">Leaderboard</Link>
+            <Link to="/community" className="hover:text-red-600">Community</Link>
+            {isAuthenticated ? <Link to="/dashboard" className="hover:text-red-600">Dashboard</Link> : null}
             {isAuthenticated && (user?.role === 'admin' || user?.role === 'coordinator') ? (
-              <Link to="/admin/tournaments" className="hover:text-red-600">Organizer</Link>
+              <Link to="/organizer" className="hover:text-red-600">Organizer</Link>
             ) : null}
             {!isAuthenticated ? (
               <Link to="/login" className="hover:text-red-600">Login</Link>
@@ -80,9 +83,12 @@ function Nav() {
           <div className="md:hidden absolute top-full left-0 w-full bg-black bg-opacity-90 p-5 flex flex-col items-center gap-4">
             <a href="#" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Home</a>
             <Link to="/tournaments" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Tournaments</Link>
-            <a href="#games" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Register</a>
+            <Link to="/games" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Games</Link>
+            <Link to="/leaderboard" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Leaderboard</Link>
+            <Link to="/community" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Community</Link>
+            {isAuthenticated ? <Link to="/dashboard" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Dashboard</Link> : null}
             {isAuthenticated && (user?.role === 'admin' || user?.role === 'coordinator') ? (
-              <Link to="/admin/tournaments" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Organizer</Link>
+              <Link to="/organizer" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Organizer</Link>
             ) : null}
             {!isAuthenticated ? (
               <Link to="/login" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Login</Link>

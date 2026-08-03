@@ -1,0 +1,10 @@
+const express = require('express');
+const { teams, team, players, player, leaderboard, matches, posts, createPost } = require('../controllers/platformController');
+const asyncHandler = require('../middleware/asyncHandler');
+const { authenticate } = require('../middleware/auth.middleware');
+const router = express.Router();
+router.get('/teams', asyncHandler(teams)); router.get('/teams/:id', asyncHandler(team));
+router.get('/players', asyncHandler(players)); router.get('/players/:id', asyncHandler(player));
+router.get('/leaderboard', asyncHandler(leaderboard)); router.get('/matches', asyncHandler(matches));
+router.get('/community', asyncHandler(posts)); router.post('/community', authenticate, asyncHandler(createPost));
+module.exports = router;

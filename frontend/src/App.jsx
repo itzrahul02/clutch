@@ -9,6 +9,8 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import Tournaments from "./pages/Tournaments";
 import TournamentDetail from "./pages/TournamentDetail";
 import AdminTournaments from "./pages/AdminTournaments";
+import Matches from "./pages/Matches";
+import { Games, Teams, TeamProfile, Players, PlayerProfile, Leaderboard, Community, Dashboard, Organizer } from "./pages/PlatformViews";
 
 function App() {
   return (
@@ -20,6 +22,15 @@ function App() {
       <Route path="/register" element={<RegisterAuth/>} />
       <Route path="/tournaments" element={<Tournaments/>} />
       <Route path="/tournaments/:slug" element={<TournamentDetail/>} />
+      <Route path="/tournaments/:slug/matches" element={<Matches />} />
+      <Route path="/games" element={<Games />} />
+      <Route path="/leaderboard" element={<Leaderboard />} />
+      <Route path="/teams" element={<Teams />} />
+      <Route path="/teams/:id" element={<TeamProfile />} />
+      <Route path="/players" element={<Players />} />
+      <Route path="/players/:id" element={<PlayerProfile />} />
+      <Route path="/community" element={<Community />} />
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route
         path="/admin/games"
         element={
@@ -29,6 +40,7 @@ function App() {
         }
       />
       <Route path="/admin/tournaments" element={<ProtectedRoute roles={["admin", "coordinator"]}><AdminTournaments /></ProtectedRoute>} />
+      <Route path="/organizer" element={<ProtectedRoute roles={["admin", "coordinator"]}><Organizer /></ProtectedRoute>} />
     </Routes>
     
   );
