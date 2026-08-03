@@ -41,7 +41,7 @@ export default function Tournaments() {
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-red-500">Find your next match</p>
         <div className="mt-3 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div><h1 className="text-4xl font-bold">Tournament hub</h1><p className="mt-2 text-zinc-400">Discover, join, and follow every Clutch event.</p></div>
-          <div className="flex gap-3"><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search tournaments" className="rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 outline-none focus:border-red-500" /><select value={status} onChange={(e) => setStatus(e.target.value)} className="rounded-lg border border-zinc-700 bg-zinc-900 px-3"><option value="">All status</option><option value="upcoming">Upcoming</option><option value="live">Live</option><option value="completed">Completed</option></select></div>
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row"><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search tournaments" className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 outline-none focus:border-red-500 sm:w-64" /><select value={status} onChange={(e) => setStatus(e.target.value)} className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-3"><option value="">All status</option><option value="upcoming">Upcoming</option><option value="live">Live</option><option value="completed">Completed</option></select></div>
         </div>
         {loading ? <p className="py-16 text-zinc-400">Loading tournaments…</p> : null}
         {error ? <p className="py-16 text-red-300">{error}</p> : null}

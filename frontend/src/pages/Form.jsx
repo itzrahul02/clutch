@@ -95,20 +95,18 @@ function Form() {
   }
   
   const selectGame=gameOptions.find((g)=>g.name===game)
-  history.replaceState(null,"","/")
   return (
     <>
-      <div className="md:flex md:flex-row-reverse justify-between items-center
-                       h-screen
+      <div className="flex min-h-screen flex-col-reverse justify-between bg-gradient-to-r from-indigo-950 from-10% via-blue-950 via-20% to-black pt-20 md:flex-row-reverse md:items-center md:pt-0
                        bg-gradient-to-r from-indigo-950 from-10% via-blue-950 via-20% to-black 100% ">
         
 
         {/* Right Game Info Section */}
-        <div className="details  w-100% md:block justify-center items-center overflow-y-scroll md:h-screen text-wrap bg-amber-400 font-medium p-8 md:w-[30%]">
+        <div className="details w-full bg-amber-400 p-6 font-medium text-wrap md:h-screen md:w-[32%] md:overflow-y-auto md:p-8">
           <img
             src={selectGame?.img}
             alt=""
-            className="md:w-full w-[60%] rounded-xl object-cover aspect-square"
+            className="mx-auto aspect-square w-40 rounded-xl object-cover md:w-full"
           />
           <div className="p-2">
             <p className="md:text-3xl text-2xl font-bold">{selectGame?.name[0].toUpperCase()+selectGame?.name.slice(1)}</p>
@@ -123,7 +121,7 @@ function Form() {
               ))}
           </div>
         </div>
-        <div className="flex border mx-auto mt-[2rem] md:mt-0 md:h-2/3 border-white bg-black rounded-lg overflow-hidden">
+        <div className="mx-auto my-8 flex w-[calc(100%-2rem)] max-w-3xl overflow-hidden rounded-lg border border-white bg-black md:my-0 md:w-auto md:max-w-none">
           {/* Left Image Section */}
           <div className="md:block hidden">
             <img
@@ -134,7 +132,7 @@ function Form() {
           </div>
 
           {/* Right Form Section */}
-          <div className="text-white overflow-y-scroll p-6 w-[25rem]">
+          <div className="max-h-[75vh] w-full overflow-y-auto p-5 text-white sm:p-6 md:h-[500px] md:w-[25rem]">
             <h2 className="text-xl font-bold mb-4 text-center">Register Now</h2>
             <form className="flex flex-col gap-3">
               <label htmlFor="team">Team Name</label>
@@ -179,7 +177,7 @@ function Form() {
               {details.map((detail, index) => (
                 <div
                   key={index}
-                  className="flex flex-col gap-3 border p-4 rounded-md"
+                  className="flex flex-col gap-3 rounded-md border p-3 sm:p-4"
                 >
                   <div className="flex items-center justify-center">Player {index+1}<span className="opacity-0">_</span> {index===0?(<p>(IGL)</p>):null}</div>
                   <div className="flex justify-between items-center">

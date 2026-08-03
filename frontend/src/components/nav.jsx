@@ -22,7 +22,7 @@ function Nav() {
     <div>
       {/* Navbar */}
       <nav
-        className="z-50 w-full py-1 md:py-2 px-6 text-white font-medium shadow-md fixed top-0 left-0 right-0"
+        className="z-50 w-full px-4 py-2 text-white font-medium shadow-md fixed top-0 left-0 right-0 md:px-6"
         style={{
           backgroundImage: `url(${background})`,
           backgroundSize: "cover",
@@ -36,11 +36,11 @@ function Nav() {
             <img
               src={logo}
               alt="Clutch Logo"
-              className="w-[40px] h-[40px] md:w-[80px] md:h-[80px]  rounded-full border-4 border-red-800"
+              className="h-11 w-11 rounded-full border-2 border-red-800 md:h-14 md:w-14"
             />
             </Link>
             
-            <img src={blackClutch} alt="Black Clutch" className="h-[1.5rem] md:h-[3.5rem]" />
+            <img src={blackClutch} alt="Black Clutch" className="h-6 md:h-9" />
           </div>
 
           {/* Desktop Menu */}
@@ -64,14 +64,14 @@ function Nav() {
           </div>
 
           {/* Right College Logo */}
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <a href="https://iiitkota.ac.in/" target="_blank">
               <img src={collegeLogo} alt="IIIT Kota" className="h-[60px] md:h-[80px] rounded-full border border-red-800" />
             </a>
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <button onClick={() => setMenuOpen(!menuOpen)}>
               <FontAwesomeIcon icon={menuOpen ? faTimes : faBars} className="text-2xl" />
             </button>
@@ -80,7 +80,7 @@ function Nav() {
 
         {/* Mobile Menu */}
         {menuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-black bg-opacity-90 p-5 flex flex-col items-center gap-4">
+          <div className="lg:hidden absolute top-full left-0 w-full border-t border-white/10 bg-black/95 p-5 flex flex-col items-center gap-4">
             <a href="#" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Home</a>
             <Link to="/tournaments" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Tournaments</Link>
             <Link to="/games" className="hover:text-red-600" onClick={() => setMenuOpen(false)}>Games</Link>
