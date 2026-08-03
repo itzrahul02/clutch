@@ -1,8 +1,5 @@
 import React, { useState } from "react";
 import logo from "../assets/Clutch_logo.png";
-import collegeLogo from "../assets/Logo.png";
-import blackClutch from "../assets/RED_CLUTCH2.png";
-import background from "../assets/background4.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { faInstagram, faYoutube } from "@fortawesome/free-brands-svg-icons";
@@ -22,16 +19,11 @@ function Nav() {
     <div>
       {/* Navbar */}
       <nav
-        className="z-50 w-full px-4 py-2 text-white font-medium shadow-md fixed top-0 left-0 right-0 md:px-6"
-        style={{
-          backgroundImage: `url(${background})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+        className="z-50 w-full border-b border-white/10 bg-zinc-950/95 px-4 py-3 text-white font-medium shadow-md backdrop-blur fixed top-0 left-0 right-0 md:px-6"
       >
         <div className="flex justify-between items-center max-w-7xl mx-auto">
           {/* Left Logo Section */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Link to='/'>
             <img
               src={logo}
@@ -39,8 +31,7 @@ function Nav() {
               className="h-11 w-11 rounded-full border-2 border-red-800 md:h-14 md:w-14"
             />
             </Link>
-            
-            <img src={blackClutch} alt="Black Clutch" className="h-6 md:h-9" />
+            <span className="text-lg font-black tracking-[.18em] text-white md:text-xl">CLUTCH</span>
           </div>
 
           {/* Desktop Menu */}
@@ -63,12 +54,7 @@ function Nav() {
 
           </div>
 
-          {/* Right College Logo */}
-          <div className="hidden lg:block">
-            <a href="https://iiitkota.ac.in/" target="_blank">
-              <img src={collegeLogo} alt="IIIT Kota" className="h-[60px] md:h-[80px] rounded-full border border-red-800" />
-            </a>
-          </div>
+          <div className="hidden text-xs font-bold uppercase tracking-[.18em] text-zinc-500 xl:block">IIIT Kota Esports</div>
 
           {/* Mobile Menu Button */}
           <div className="lg:hidden">

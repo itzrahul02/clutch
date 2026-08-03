@@ -10,6 +10,8 @@ import Tournaments from "./pages/Tournaments";
 import TournamentDetail from "./pages/TournamentDetail";
 import AdminTournaments from "./pages/AdminTournaments";
 import Matches from "./pages/Matches";
+import AdminPeople from "./pages/AdminPeople";
+import CoordinatorRequest from "./pages/CoordinatorRequest";
 import { Games, Teams, TeamProfile, Players, PlayerProfile, Leaderboard, Community, Dashboard, Organizer } from "./pages/PlatformViews";
 
 function App() {
@@ -31,6 +33,7 @@ function App() {
       <Route path="/players/:id" element={<PlayerProfile />} />
       <Route path="/community" element={<Community />} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/request-coordinator" element={<ProtectedRoute><CoordinatorRequest /></ProtectedRoute>} />
       <Route
         path="/admin/games"
         element={
@@ -41,6 +44,7 @@ function App() {
       />
       <Route path="/admin/tournaments" element={<ProtectedRoute roles={["admin", "coordinator"]}><AdminTournaments /></ProtectedRoute>} />
       <Route path="/organizer" element={<ProtectedRoute roles={["admin", "coordinator"]}><Organizer /></ProtectedRoute>} />
+      <Route path="/admin/people" element={<ProtectedRoute roles={["admin", "coordinator"]}><AdminPeople /></ProtectedRoute>} />
     </Routes>
     
   );
