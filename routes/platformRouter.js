@@ -1,5 +1,5 @@
 const express = require('express');
-const { teams, team, players, player, leaderboard, matches, posts, createPost, adminUsers, updateRole, updateTeam, deleteTeam, sendPlayerNotification, myNotifications, requestCoordinator, roleRequests, reviewRoleRequest } = require('../controllers/platformController');
+const { teams, team, players, player, leaderboard, matches, posts, createPost, adminUsers, updateRole, updateTeam, deleteTeam, updatePlayer, deletePlayer, sendPlayerNotification, myNotifications, requestCoordinator, roleRequests, reviewRoleRequest } = require('../controllers/platformController');
 const asyncHandler = require('../middleware/asyncHandler');
 const { authenticate, authorize } = require('../middleware/auth.middleware');
 const router = express.Router();
@@ -13,6 +13,8 @@ router.get('/admin/users', authenticate, authorize('admin', 'coordinator'), asyn
 router.patch('/admin/users/:id/role', authenticate, authorize('admin', 'coordinator'), asyncHandler(updateRole));
 router.patch('/admin/teams/:id', authenticate, authorize('admin', 'coordinator'), asyncHandler(updateTeam));
 router.delete('/admin/teams/:id', authenticate, authorize('admin', 'coordinator'), asyncHandler(deleteTeam));
+router.patch('/admin/players/:id', authenticate, authorize('admin', 'coordinator'), asyncHandler(updatePlayer));
+router.delete('/admin/players/:id', authenticate, authorize('admin', 'coordinator'), asyncHandler(deletePlayer));
 router.post('/admin/players/:id/notifications', authenticate, authorize('admin', 'coordinator'), asyncHandler(sendPlayerNotification));
 router.get('/admin/role-requests', authenticate, authorize('admin', 'coordinator'), asyncHandler(roleRequests));
 router.patch('/admin/role-requests/:id', authenticate, authorize('admin', 'coordinator'), asyncHandler(reviewRoleRequest));
