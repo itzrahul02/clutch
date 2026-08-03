@@ -6,6 +6,9 @@ import Login from "./pages/Login";
 import RegisterAuth from "./pages/RegisterAuth";
 import AdminGames from "./pages/AdminGames";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import Tournaments from "./pages/Tournaments";
+import TournamentDetail from "./pages/TournamentDetail";
+import AdminTournaments from "./pages/AdminTournaments";
 
 function App() {
   return (
@@ -15,6 +18,8 @@ function App() {
       <Route path="/form" element={<Form/>} />
       <Route path="/login" element={<Login/>} />
       <Route path="/register" element={<RegisterAuth/>} />
+      <Route path="/tournaments" element={<Tournaments/>} />
+      <Route path="/tournaments/:slug" element={<TournamentDetail/>} />
       <Route
         path="/admin/games"
         element={
@@ -23,6 +28,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route path="/admin/tournaments" element={<ProtectedRoute roles={["admin", "coordinator"]}><AdminTournaments /></ProtectedRoute>} />
     </Routes>
     
   );
